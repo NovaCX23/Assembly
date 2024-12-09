@@ -1,6 +1,7 @@
 .data
 
 	v: .space 1024
+	nFisiere: .space 4
 	nOperatii: .space 4
 	codOperatie: .space 4
 	countSpaatiiLibere: .space 4
@@ -67,7 +68,7 @@ ADD:
 	add_loop_j:
 		pushl %eax ; stocare eax inainte de a-l folosi altundeva
 		cmp $nFisiere, %eax
-		je end_ADD
+		je add_end
 		movl $0, countSpaatiiLibere
 
 		;  ======== descriptor + dimensiune ===========
@@ -87,10 +88,10 @@ ADD:
 		movl $8, %ebx
 		divl %ebx
 		cmp $0, %edx ; restul 
-		je add_done_dimension
+		je add_done_dim
 		incl %eax
 	
-	add_done_dimension:
+	add_done_dim:
 		movl %eax, dimensiune
 		movl $0, countSpaatiiLibere
 		xorl %ebx, %ebx
@@ -98,7 +99,7 @@ ADD:
 		xorl %eax, %eax
 	
 	add_loop_d:
-		cmp $255, %ebx  ; ebx este d ul 
+		cmp $255, %ebx  ; ebx este d ul din for
 		jge spatiu_insuficient
 
 		; ======= verificam daca avem spatiu liber =======
@@ -112,11 +113,11 @@ ADD:
 		cmp %edx, dimensiune
 		je spatiu_gasit
 
-	urm_spatiu:
+	add_urm_spatiu:
 		incl %ebx
 		jmp add_loop_d
 
-	spatiu_gasit:
+	add_spatiu_gasit:
 		movl %ebx , idFinal
 		subl dimensiune, %ebx
 		incl %ebx
@@ -135,18 +136,18 @@ ADD:
 
 		; ========== marcare spatii ocupate ==========
 		movl idInceput, %ebx
-		ocupa:
+		add_ocupa:
 			cmp idFinal, %ebx
 			je ocupate
 			movl descriptor, v(,%ebx,4)
 			incl %ebx
 			jmp ocupa
-		ocupate:
+		add_ocupate:
 			popl %eax
 			incl %eax
 			jmp add_loop_j
 
-	spatiu_insuficient:
+	add_spatiu_insuficient:
 		pushl $0
 		pushl $0
 		pushl $descriptor
@@ -158,7 +159,7 @@ ADD:
 		popl %ebx	
 		jmp add_loop_j
 
-	end_ADD:
+	add_end:
 		jmp et_loopPrincipalNext 
 
 GET:
