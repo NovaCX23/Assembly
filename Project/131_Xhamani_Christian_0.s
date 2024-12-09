@@ -146,7 +146,17 @@ ADD:
 			incl %eax
 			jmp add_loop_j
 
-
+	spatiu_insuficient:
+		pushl $0
+		pushl $0
+		pushl $descriptor
+		pushl $formatOutput
+		call printf
+		popl %ebx
+		popl %ebx
+		popl %ebx
+		popl %ebx	
+		jmp add_loop_j
 
 	end_ADD:
 		jmp et_loopPrincipalNext 
