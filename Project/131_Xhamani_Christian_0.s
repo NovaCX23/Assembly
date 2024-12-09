@@ -48,13 +48,11 @@ et_loopPrincipal:
 	je DEFRAGMENTATION	
 	
 et_loopPrincipalNext:
-
 	loop et_loopPrincipal
-
+	
 	movl $1, %eax
 	xorl %ebx, %ebx
 	int $0x80
-
 
 
 ADD:
@@ -65,12 +63,10 @@ ADD:
 	popl %ebx
 	popl %ebx
 	xorl %eax, %eax
-	pushl %eax
+	
 	add_loop_j:
-		
-		popl %eax
-		cmp $nFisiere, %eax
 		pushl %eax ; stocare eax inainte de a-l folosi altundeva
+		cmp $nFisiere, %eax
 		je end_ADD
 		movl $0, countSpaatiiLibere
 
@@ -91,18 +87,19 @@ ADD:
 		movl $8, %ebx
 		divl %ebx
 		cmp $0, %edx ; restul 
-		je add_done_loop_j
+		je add_done_dimension
 		incl %eax
 	
-	add_done_loop_j:
+	add_done_dimension:
 		movl %eax, dimensiune
 		movl $0, countSpaatiiLibere
 		xorl %ebx, %ebx
 		xorl %edx, %edx
+		xorl %eax, %eax
 	
 	add_loop_d:
 		cmp $255, %ebx  ; ebx este d ul 
-		je add_done_loop_d
+		jge spatiu_insuficient
 
 		; ======= verificam daca avem spatiu liber =======
 		movl v(, %ebx, 4), %eax
@@ -113,13 +110,13 @@ ADD:
 		incl countSpaatiiLibere
 		movl countSpaatiiLibere, %edx
 		cmp %edx, dimensiune
-		je space_found
+		je spatiu_gasit
 
 	urm_spatiu:
 		incl %ebx
 		jmp add_loop_d
 
-	space_found:
+	spatiu_gasit:
 		movl %ebx , idFinal
 		subl dimensiune, %ebx
 		incl %ebx
@@ -135,10 +132,23 @@ ADD:
         popl %ebx
         popl %ebx
         popl %ebx
-	
+
+		; ========== marcare spatii ocupate ==========
+		movl idInceput, %ebx
+		ocupa:
+			cmp idFinal, %ebx
+			je ocupate
+			movl descriptor, v(,%ebx,4)
+			incl %ebx
+			jmp ocupa
+		ocupate:
+			popl %eax
+			incl %eax
+			jmp add_loop_j
+
 
 	end_ADD:
-		jmp et_loopPrincipalNext
+		jmp et_loopPrincipalNext 
 
 GET:
 

@@ -35,7 +35,7 @@ void ADD()
         }
         else
         {
-            cout << descriFinalptor << ":  (0,0)";
+            cout << descriptor << ":  (0,0)";
         }
     }
 }
