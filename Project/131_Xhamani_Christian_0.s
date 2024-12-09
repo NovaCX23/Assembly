@@ -124,9 +124,21 @@ ADD:
 		subl dimensiune, %ebx
 		incl %ebx
 		movl %ebx , idInceput
+		
+		; ========= AFISARE ========
+		pushl idFinal
+        pushl idInceput
+        pushl descriptor
+        pushl $formatOutput
+        call printf
+        popl %ebx
+        popl %ebx
+        popl %ebx
+        popl %ebx
+	
 
-
-	jmp et_loopPrincipalNext
+	end_ADD:
+		jmp et_loopPrincipalNext
 
 GET:
 
