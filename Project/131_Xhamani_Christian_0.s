@@ -100,22 +100,24 @@ ADD:
 	
 	add_loop_d:
 		cmp $255, %ebx  ; ebx este d ul din for
-		jge spatiu_insuficient
+		jge add_spatiu_insuficient
 
 		; ======= verificam daca avem spatiu liber =======
 		movl v(, %ebx, 4), %eax
 		cmp $0, %eax
-		jne urm_spatiu
+		jne add_urm_spatiu
 
 		; ======= daca e liber =======
 		incl countSpaatiiLibere
 		movl countSpaatiiLibere, %edx
 		cmp %edx, dimensiune
-		je spatiu_gasit
+		je add_spatiu_gasit
 
 	add_urm_spatiu:
 		incl %ebx
 		jmp add_loop_d
+
+	;!!! resetarea la 0 daca nu mai e spatiu
 
 	add_spatiu_gasit:
 		movl %ebx , idFinal
@@ -141,7 +143,7 @@ ADD:
 			je ocupate
 			movl descriptor, v(,%ebx,4)
 			incl %ebx
-			jmp ocupa
+			jmp add_ocupa
 		add_ocupate:
 			popl %eax
 			incl %eax
