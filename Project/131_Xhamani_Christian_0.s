@@ -147,6 +147,7 @@ ADD:
 			jmp add_loop_j
 
 
+
 	end_ADD:
 		jmp et_loopPrincipalNext 
 
