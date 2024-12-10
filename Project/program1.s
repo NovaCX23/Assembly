@@ -26,7 +26,7 @@ main:
 
 	movl nrOp, %ecx
 
-    ; ========== For principal citire ============
+    #  For principal citire 
 et_loopPrincipal:
 		
 	pushl $tipOp
@@ -35,7 +35,7 @@ et_loopPrincipal:
     popl %ebx
     popl %ebx
     
-    ; ========== Cazuri ============
+    # Cazuri  
 	movl tipOp, %eax
 	cmp $1, %eax
 	je ADD
@@ -60,4 +60,39 @@ ADD:
     call scanf
     popl %ebx
     popl %ebx
-    
+    xorl %eax, %eax
+
+    add_ffor:
+        cmp nrFis, %eax
+        je add_end
+        movl $0, ctSLibere
+
+        #citire descriptor
+        pushl descriptor
+        pushl Input
+        call scanf
+        popl %ebx 
+        popl %ebx
+
+        #citire dimensiune
+        pushl dimensiune
+        pushl Input
+        call scanf
+        popl %ebx 
+        popl %ebx
+        
+        #calc dimensiune
+
+
+
+
+
+
+
+    add_end:
+        ret
+GET:
+
+DELETE:
+
+DEFRAGMENTATION:
