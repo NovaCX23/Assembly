@@ -1,42 +1,35 @@
 #include <bits/stdc++.h>
 using namespace std;
-int v[255], nOperatii, nFisiere, codOperatie, descriptor, idInceput, idFinal;
+int v[255], nrOp, nrFis, tipOp, descriptor, idInceput, idFinal;
 double dimensiune;
 
 void ADD()
 {
-    int j, d, countSpatiiLibere;
-    cin >> nFisiere;
-    for(j = 0; j < nFisiere; j++)
+    int j, d, ctSLib;
+    cin >> nrFis;
+    for(j = 0; j < nrFis; j++)
     {
-        countSpatiiLibere = 0;
+        ctSLib = 0;
         cin >> descriptor >> dimensiune;
         dimensiune = ceil(dimensiune / 8);
         for(d = 0; d < 255; d++)
             if(v[d] == 0)
             {
-                countSpatiiLibere ++;
-                if(countSpatiiLibere == dimensiune)
+                ctSLib ++;
+                if(ctSLib == dimensiune)
                     break;
             }
-            else
-            {
-                countSpatiiLibere = 0;
-            }
+            else ctSL = 0;
 
-        if(countSpatiiLibere == dimensiune)
+        if(ctSLib == dimensiune)
         {
             idInceput = d + 1 - dimensiune;
             idFinal = d;
             cout << descriptor << ":  " << "(" << idInceput << "," << idFinal << ")\n";
-
             for(d = idInceput; d <= idFinal; d++)
                 v[d] = descriptor;
         }
-        else
-        {
-            cout << descriptor << ":  (0,0)";
-        }
+        else cout << descriptor << ":  (0,0)";
     }
 }
 
@@ -57,22 +50,18 @@ void GET()
 int main()
 {
     int i;
-    cin >> nOperatii;
-
-    for(i = 0; i < nOperatii; i++)
+    cin >> nrOp;
+    for(i = 0; i < nrOp; i++)
     {
-        cin >> codOperatie;
-
-        if(codOperatie == 1)
+        cin >> tipOp;
+        if(tipOp == 1)
             ADD();
-        else if(codOperatie == 2)
+        else if(tipOp == 2)
             GET();
-        //else if(codOperatie == 3)
-           // DELETE();
-       // else if(codOperatie == 4)
-           // DEFRAMENTATION();
+        else if(codOperatie == 3)
+            DELETE();
+        else if(codOperatie == 4)
+            DEFRAMENTATION();
     }
-
-
     return 0;
 }
