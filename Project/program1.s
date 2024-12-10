@@ -28,7 +28,7 @@ main:
 
     #  For principal citire 
 et_loopPrincipal:
-		
+	pushl %ecx
 	pushl $tipOp
     pushl $Input
     call scanf
@@ -47,6 +47,7 @@ et_loopPrincipal:
 	je DEFRAGMENTATION	
 	
 et_loopPrincipalNext:
+    popl %ecx
 	loop et_loopPrincipal
 	
 	movl $1, %eax
@@ -60,9 +61,9 @@ ADD:
     call scanf
     popl %ebx
     popl %ebx
-    xorl %eax, %eax
 
-    add_ffor:
+    add_for_principal:
+        xorl %eax, %eax
         cmp nrFis, %eax
         je add_end
         movl $0, ctSLibere
@@ -80,17 +81,46 @@ ADD:
         call scanf
         popl %ebx 
         popl %ebx
-        
+
+
         #calc dimensiune
+        movl dimensiune, %eax
+        movl $8, %ecx
+        divl %ecx
+        cmpl $0, %edx
+        je dimensiune_ok
+        incl %eax
 
+        dimensiune_ok:
+            movl %eax, dimensiune
+        
+        xorl %ebx, %ebx
+        add_for_secundar:
+            pushl %ebx
+            cmp $255, %ebx
+            jge add_for_secundar_end
 
+            
+            #intoarcere fortata + incrementare 
+            add_for_secundar_incrementare:
+                popl %ebx
+                incl %ebx
+                jmp add_for_secundar
+        
+        add_for_secundar_end:
+            #break --- > aici pun cazul de 0,0
 
-
-
-
+    add_for_principal_end:
+        decl nrFis
+        jmp add_for_principal
 
     add_end:
-        ret
+        jmp et_loopPrincipalNext
+
+resetare_spatii_libere:
+    movl $0, ctSLibere
+    jmp add_for_secundar_incrementare
+
 GET:
 
 DELETE:

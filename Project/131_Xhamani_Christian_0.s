@@ -101,7 +101,7 @@ ADD:
 	add_loop_d:
 		cmp $255, %ebx  ; ebx este d ul din for
 		jge add_spatiu_insuficient
-
+		
 		; ======= verificam daca avem spatiu liber =======
 		movl v(, %ebx, 4), %eax
 		cmp $0, %eax

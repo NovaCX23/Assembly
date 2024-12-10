@@ -13,23 +13,24 @@ void ADD()
         cin >> descriptor >> dimensiune;
         dimensiune = ceil(dimensiune / 8);
         for(d = 0; d < 255; d++)
+        {
             if(v[d] == 0)
             {
                 ctSLib ++;
                 if(ctSLib == dimensiune)
-                    break;
+                    {
+                        idInceput = d + 1 - dimensiune;
+                        idFinal = d;
+                        cout << descriptor << ":  " << "(" << idInceput << "," << idFinal << ")\n";
+                        for(d = idInceput; d <= idFinal; d++)
+                            v[d] = descriptor;
+                        break;
+                    }
             }
-            else ctSL = 0;
-
-        if(ctSLib == dimensiune)
-        {
-            idInceput = d + 1 - dimensiune;
-            idFinal = d;
-            cout << descriptor << ":  " << "(" << idInceput << "," << idFinal << ")\n";
-            for(d = idInceput; d <= idFinal; d++)
-                v[d] = descriptor;
+            else ctSLib = 0;
         }
-        else cout << descriptor << ":  (0,0)";
+        if(ctSLib != dimensiune)
+        cout << descriptor << ":  (0,0)";
     }
 }
 
