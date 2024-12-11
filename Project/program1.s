@@ -13,6 +13,7 @@
 	Input: .asciz "%d"
     Output_add: .asciz "%d:  (%d,%d)\n"
     Output_get: .asciz "(%d,%d)\n"
+    Output_zero: .asciz "%d:  (0,0)\n"
 
 .text
 
@@ -57,130 +58,113 @@ et_loopPrincipalNext:
 
 
 ADD:
+    # Read number of files (nrFis)
     pushl $nrFis
     pushl $Input
     call scanf
-    popl %ebx
-    popl %ebx
+    addl $8, %esp  # Adjust stack after scanf
 
-    add_for_principal:
-        xorl %eax, %eax
-        cmp nrFis, %eax
-        je add_end
-        movl $0, ctSLibere
+    movl nrFis, %ecx  # Outer loop counter (number of files)
 
-        #citire descriptor
-        pushl descriptor
-        pushl Input
-        call scanf
-        popl %ebx 
-        popl %ebx
+add_outer_loop:
+    cmpl $0, %ecx
+    je add_end  # Exit loop if no files left
 
-        #citire dimensiune
-        pushl dimensiune
-        pushl Input
-        call scanf
-        popl %ebx 
-        popl %ebx
-
-
-        #calc dimensiune
-        xorl %edx, %edx
-        movl dimensiune, %eax
-        movl $8, %ecx
-        divl %ecx
-        cmpl $0, %edx
-        je dimensiune_ok
-        incl %eax
-
-        dimensiune_ok:
-            movl %eax, dimensiune
-        
-        xorl %ebx, %ebx
-        add_for_secundar:
-            pushl %ebx
-            cmp $255, %ebx
-            jge add_for_secundar_end
-            
-            #verificam daca v[d] == 0
-            movl v(,%ebx,4), %eax
-            cmp $0, %eax
-            jne resetare_spatii_libere
-            
-            #nu stiu sigur daca l-am folosit pe ecx, daca l am folosit ma intorc aici si-l pun in stiva
-
-            #Incrementam Spatiile Libere
-            incl ctSLibere
-            movl ctSLibere, %ecx
-            cmpl dimensiune, %ecx
-            jne add_for_secundar_incrementare
-
-            #Daca am gasit suficient spatiu
-            movl %eax , idFinal
-            subl dimensiune, %eax
-            incl %eax
-            movl %eax, idInceput
-
-            #Afisare
-            pushl idFinal
-            pushl idInceput
-            pushl descriptor
-            pushl $Output_add
-            call printf
-            popl %ebx
-            popl %ebx
-            popl %ebx
-            popl %ebx
-
-            pushl %ecx #de siguranta
-
-            #updatare vector
-            movl idInceput, %eax
-            update_vector:
-            movl descriptor, %ecx
-            movl %ecx, v(, %eax, 4)
-            incl %eax
-            cmp idFinal, %eax
-            jle update_vector
-
-            popl %ecx #de siguranta
-            jmp add_for_secundar_end
-            
-            #intoarcere fortata + incrementare 
-            add_for_secundar_incrementare:
-                popl %ebx
-                incl %ebx
-                jmp add_for_secundar
-        
-        add_for_secundar_end:
-            mov ctSLibere, %ebx
-            cmp dimensiune, %ebx
-            je add_for_principal_end
-            
-            #cazul (0,0)
-            xorl %eax, %eax
-            pushl %eax
-            pushl %eax
-            movl descriptor, %eax
-            pushl %eax
-            pushl $Output_add
-            call printf
-            popl %eax
-            popl %eax
-            popl %eax
-            popl %eax
-
-    add_for_principal_end:
-        decl nrFis
-        jmp add_for_principal
-
-    add_end:
-        jmp et_loopPrincipalNext
-
-#else ul de la for ul principal
-resetare_spatii_libere:
+    # Reset free space counter
     movl $0, ctSLibere
-    jmp add_for_secundar_incrementare
+
+    # Read descriptor
+    pushl $descriptor
+    pushl $Input
+    call scanf
+    addl $8, %esp
+
+    # Read dimensiune
+    pushl $dimensiune
+    pushl $Input
+    call scanf
+    addl $8, %esp
+
+    # Ensure dimensiune is valid
+    movl dimensiune, %eax
+    cmpl $0, %eax
+    jle add_no_space
+
+    # Calculate dimensiune = ceil(dimensiune / 8)
+    xorl %edx, %edx  # Clear upper 32 bits of dividend
+    movl $8, %ecx
+    divl %ecx        # Divide dimensiune by 8
+    testl %edx, %edx # Check remainder
+    je dim_ok        # If no remainder, skip increment
+    incl %eax        # Increment to ceil
+dim_ok:
+    movl %eax, dimensiune
+
+    # Inner loop to find free space
+    xorl %ebx, %ebx  # %ebx = d (array index)
+add_inner_loop:
+    cmpl $255, %ebx
+    jge add_no_space  # Exit if no space found
+
+    # Check if v[d] == 0
+    movl v(,%ebx,4), %eax
+    cmpl $0, %eax
+    jne add_reset_free_count
+
+    # Increment free space counter
+    incl ctSLibere
+    movl ctSLibere, %eax
+    cmpl dimensiune, %eax
+    jne add_continue  # Not enough space yet
+
+    # Found enough space
+    movl %ebx, idFinal
+    subl dimensiune, %ebx
+    incl %ebx
+    movl %ebx, idInceput
+
+    # Print result
+    pushl idFinal
+    pushl idInceput
+    pushl descriptor
+    pushl $Output_add
+    call printf
+    addl $16, %esp  # Cleanup stack
+
+    # Update v array
+    movl idInceput, %eax
+add_update_loop:
+    pushl %ebx
+    movl descriptor, %ebx
+    movl %ebx, v(,%eax,4)
+    popl %ebx
+    incl %eax
+    cmpl idFinal, %eax
+    jle add_update_loop
+
+    jmp add_outer_continue
+
+add_reset_free_count:
+    movl $0, ctSLibere
+
+add_continue:
+    incl %ebx
+    jmp add_inner_loop
+
+add_no_space:
+    # Print (0,0) for no space found
+    pushl $0
+    pushl $0
+    pushl descriptor
+    pushl $Output_zero
+    call printf
+    addl $16, %esp  # Cleanup stack
+
+add_outer_continue:
+    decl %ecx
+    jmp add_outer_loop
+add_end:
+    jmp et_loopPrincipalNext
 
 GET:
 
