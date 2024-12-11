@@ -56,6 +56,28 @@ void GET()
         cout << "(" << idInceput << "," << idFinal << ")\n";
 }
 
+void DELETE():
+{
+    cin >> descriptor;
+    for(int i = 0; i < 255; i++)
+        if(v[i] == descriptor) v[i] = 0;
+        else
+        {
+
+        }
+}   
+void DEFRAG():
+{
+        int AUX[256] = {0}, counterAUX = 0;
+
+        for(int i = 0; i < 255; i++)
+            if(v[i])AUX[counterAUX++] = v[i];
+
+        for(int i = 0; i < 255; i++)
+            v[i] = AUX[i];
+}
+
+
 int main()
 {
     int i;

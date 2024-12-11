@@ -1,5 +1,6 @@
 .data
 	v: .space 1024
+    w: .space 1028
 	nrFis: .space 4
 	nrOp: .space 4
 	tipOp: .space 4
@@ -10,6 +11,7 @@
 	idFinal: .space 4
 	j: .space 4
 	d: .space 4
+    counter_w: .space 4
 	Input: .asciz "%d"
     Output_add: .asciz "%d:  (%d,%d)\n"
     Output_get: .asciz "(%d,%d)\n"
@@ -228,4 +230,54 @@ get_caz_special:
 
 DELETE:
 
+
 DEFRAGMENTATION:
+
+movl $0, counter_w
+
+# Loop pentru copierea valorilor nenule din v în w
+    movl $0, %eax   # indexului pentru v și w
+
+defrag_CopyLoop:
+    cmpl $255, %eax    
+    je defrag_FinishCopy 
+
+    # Accesăm v[%eax]
+    movl v(,%eax,4), %ebx 
+
+    # Verificăm v[%eax] != 0
+    cmpl $0, %ebx          
+    je defrag_NextElement  
+
+    # Dacă v[%eax] este nenul, copiem valoarea în w[counter_w]
+    movl counter_W, %ecx  
+    movl v(,%eax,4), %ebx  
+    movl %ebx, w(,%ecx,4) # w[counter_w] = v[%eax]
+
+    incl counter_w
+
+defrag_NextElement:
+    # Incrementăm %eax și revenim la următorul element
+    incl %eax
+    jmp defrag_CopyLoop
+
+defrag_FinishCopy:
+    # Loop pentru a copia valorile din w înapoi în v
+    movl $0, %eax          # inițializarea indexului pentru w și v
+
+defrag_OverwriteLoop:
+    cmpl $255, %eax        
+    je defrag_end        
+
+    # Accesăm w[%eax]
+    movl w(,%eax,4), %ebx 
+    movl $0, w(,%eax,4) # resetare vector auxiliar
+    movl %ebx, v(,%eax,4)    # v[%eax] = w[%eax]
+
+    # Incrementăm %eax și revenim
+    incl %eax
+    jmp defrag_OverwriteLoop
+
+defrag_end:
+    jmp loopPrincipalNext
+
