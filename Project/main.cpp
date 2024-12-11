@@ -37,14 +37,14 @@ void ADD()
 
 void GET()
 {
-    int d, getDescriptor;
-    idInceput = idFinal = 0;
-    cin >> getDescriptor;
+    int d, descriptor;
+    idInceput = idFinal = 420;
+    cin >> descriptor;
     for(d = 0; d < 255; d++)
-        if(v[d] == getDescriptor)
+        if(v[d] == descriptor)
         {
-            if(idInceput == 0)idInceput = d;
-            if(idInceput != 0)idFinal = d;
+            if(idInceput == 420)idInceput = d;
+            if(idInceput != 420)idFinal = d;
         }
     cout << "(" << idInceput << "," << idFinal << ")\n";
 }

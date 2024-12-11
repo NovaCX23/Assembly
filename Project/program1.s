@@ -22,8 +22,7 @@ main:
     pushl $nrOp
 	pushl $Input
 	call scanf
-	popl %ebx
-	popl %ebx
+	addl $8, %esp
 
 	movl nrOp, %ecx
 
@@ -33,8 +32,7 @@ loopPrincipal:
 	pushl $tipOp
     pushl $Input
     call scanf
-    popl %ebx
-    popl %ebx
+    addl $8, %esp
     
     # Cazuri  
 	movl tipOp, %eax
@@ -166,6 +164,62 @@ add_end:
     jmp loopPrincipalNext
 
 GET:
+    movl $420, idInceput
+    movl $420, idFinal
+    
+    # Citirea descriptorului
+    pushl $descriptor
+    pushl $Input
+    call scanf
+    addl $8, %esp
+
+    xorl %ecx, %ecx # d-ul
+
+get_loop:
+    cmpl $255, %ecx
+    jge get_end
+
+    movl v(,%ecx,4), %eax
+    cmpl descriptor, %eax
+    je get_indici
+
+    incl %ecx
+    jmp get_loop
+
+get_indici:
+    cmpl $420, idInceput
+    jne get_id_final
+    movl %ecx, idInceput
+    incl %ecx
+    jmp get_loop
+
+get_id_final:
+    movl %ecx, idFinal
+    xorl %ecx, %ecx
+
+get_end:
+    cmpl $420, idInceput
+    je get_caz_special
+
+    # Afisare
+    pushl idFinal
+    pushl idInceput
+    pushl $Output_get
+    call printf
+    addl $12, %esp
+
+    jmp loopPrincipalNext
+
+get_caz_special:
+    # Afișează caz special (dacă nu s-au găsit indicii)
+    pushl $0
+    pushl $0
+    pushl descriptor
+    pushl $Output_get
+    call printf
+    addl $16, %esp
+    jmp loopPrincipalNext
+
 
 DELETE:
 
