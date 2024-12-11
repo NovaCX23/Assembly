@@ -13,7 +13,6 @@
 	Input: .asciz "%d"
     Output_add: .asciz "%d:  (%d,%d)\n"
     Output_get: .asciz "(%d,%d)\n"
-    Output_zero: .asciz "%d:  (0,0)\n"
 
 .text
 
@@ -29,7 +28,7 @@ main:
 	movl nrOp, %ecx
 
     #  For principal citire 
-et_loopPrincipal:
+loopPrincipal:
 	pushl %ecx
 	pushl $tipOp
     pushl $Input
@@ -48,9 +47,9 @@ et_loopPrincipal:
 	cmp $4, %eax
 	je DEFRAGMENTATION	
 	
-et_loopPrincipalNext:
+loopPrincipalNext:
     popl %ecx
-	loop et_loopPrincipal
+	loop loopPrincipal
 	
 	movl $1, %eax
 	xorl %ebx, %ebx
@@ -58,55 +57,55 @@ et_loopPrincipalNext:
 
 
 ADD:
-    # Read number of files (nrFis)
+    # Citire nr fisiere (nrFis)
     pushl $nrFis
     pushl $Input
     call scanf
-    addl $8, %esp  # Adjust stack after scanf
+    addl $8, %esp 
 
-    movl nrFis, %ecx  # Outer loop counter (number of files)
+    movl nrFis, %ecx  # Counter loop exterior
 
 add_outer_loop:
     cmpl $0, %ecx
-    je add_end  # Exit loop if no files left
+    je add_end  
 
-    # Reset free space counter
+    # Resetare spatii libere 
     movl $0, ctSLibere
 
-    # Read descriptor
+    # Descriptor
     pushl $descriptor
     pushl $Input
     call scanf
     addl $8, %esp
 
-    # Read dimensiune
+    # Dimensiune
     pushl $dimensiune
     pushl $Input
     call scanf
     addl $8, %esp
 
-    # Ensure dimensiune is valid
+    # Verificare dimensiune
     movl dimensiune, %eax
     cmpl $0, %eax
     jle add_no_space
 
-    # Calculate dimensiune = ceil(dimensiune / 8)
-    xorl %edx, %edx  # Clear upper 32 bits of dividend
+    # Dimensiune = ceil(dimensiune / 8)
+    xorl %edx, %edx  
     movl $8, %ecx
-    divl %ecx        # Divide dimensiune by 8
-    cmp $0, %edx     # Check remainder
-    je dim_ok        # If no remainder, skip increment
-    incl %eax        # Increment to ceil
+    divl %ecx        
+    cmp $0, %edx     
+    je dim_ok        
+    incl %eax        
 dim_ok:
     movl %eax, dimensiune
 
-    # Inner loop to find free space
-    xorl %ebx, %ebx  # %ebx = d (array index)
+    # Loop interior pentru spatii libere
+    xorl %ebx, %ebx  # %ebx = d 
 add_inner_loop:
     cmpl $255, %ebx
-    jge add_no_space  # Exit if no space found
+    jge add_no_space  
 
-    # Check if v[d] == 0
+    # If v[d] == 0
     movl v(,%ebx,4), %eax
     cmpl $0, %eax
     jne add_reset_free_count
@@ -117,21 +116,21 @@ add_inner_loop:
     cmpl dimensiune, %eax
     jne add_continue  # Not enough space yet
 
-    # Found enough space
+    # Suficient spatiu
     movl %ebx, idFinal
     subl dimensiune, %ebx
     incl %ebx
     movl %ebx, idInceput
 
-    # Print result
+    # Afisare 
     pushl idFinal
     pushl idInceput
     pushl descriptor
     pushl $Output_add
     call printf
-    addl $16, %esp  # Cleanup stack
+    addl $16, %esp  
 
-    # Update v array
+    # Actualizare array
     movl idInceput, %eax
 add_update_loop:
     pushl %ebx
@@ -152,19 +151,19 @@ add_continue:
     jmp add_inner_loop
 
 add_no_space:
-    # Print (0,0) for no space found
+    # Cazul (0,0)
     pushl $0
     pushl $0
     pushl descriptor
-    pushl $Output_zero
+    pushl $Output_add
     call printf
-    addl $16, %esp  # Cleanup stack
+    addl $16, %esp  
 
 add_outer_continue:
     decl %ecx
     jmp add_outer_loop
 add_end:
-    jmp et_loopPrincipalNext
+    jmp loopPrincipalNext
 
 GET:
 
