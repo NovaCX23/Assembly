@@ -163,9 +163,11 @@ add_outer_continue:
 add_end:
     jmp loopPrincipalNext
 
+
+
 GET:
-    movl $420, idInceput
-    movl $420, idFinal
+    movl $1025, idInceput
+    movl $1025, idFinal
     
     # Citirea descriptorului
     pushl $descriptor
@@ -173,32 +175,36 @@ GET:
     call scanf
     addl $8, %esp
 
-    xorl %ecx, %ecx # d-ul
+    xorl %eax, %eax
+    xorl %ecx, %ecx # d=0
 
 get_loop:
     cmpl $255, %ecx
-    jge get_end
+    je get_end
 
     movl v(,%ecx,4), %eax
-    cmpl descriptor, %eax
+    cmpl descriptor, %eax # v[d] == descriptor
     je get_indici
 
     incl %ecx
     jmp get_loop
 
 get_indici:
-    cmpl $420, idInceput
+    cmpl $1025, idInceput # daca idInceput e ocupat 
     jne get_id_final
-    movl %ecx, idInceput
+
+    movl %ecx, idInceput # altfel
     incl %ecx
     jmp get_loop
 
 get_id_final:
     movl %ecx, idFinal
-    xorl %ecx, %ecx
+    incl %ecx
+    jmp get_loop
+
 
 get_end:
-    cmpl $420, idInceput
+    cmpl $1025, idInceput
     je get_caz_special
 
     # Afisare
@@ -214,10 +220,9 @@ get_caz_special:
     # Afișează caz special (dacă nu s-au găsit indicii)
     pushl $0
     pushl $0
-    pushl descriptor
     pushl $Output_get
     call printf
-    addl $16, %esp
+    addl $12, %esp
     jmp loopPrincipalNext
 
 

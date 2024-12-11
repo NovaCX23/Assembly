@@ -37,17 +37,25 @@ void ADD()
 
 void GET()
 {
-    int d, getDescriptor;
-    idInceput = idFinal = 0;
-    cin >> getDescriptor;
+    int d, descriptor;
+    idInceput = idFinal = 1025;
+    cin >> descriptor;
     for(d = 0; d < 255; d++)
-        if(v[d] == getDescriptor)
+    {
+        if(v[d] == descriptor)
         {
-            if(idInceput == 0)idInceput = d;
-            if(idInceput != 0)idFinal = d;
+            if(idInceput == 1025) idInceput = d;
+            idFinal = d;
         }
-    cout << "(" << idInceput << "," << idFinal << ")\n";
+        if(v[d] != descriptor && idFinal != 1025)
+            break;
+    }
+    if(idInceput == 1025) // Dacă nu am găsit niciun descriptor
+        cout << "(0,0)" << endl;
+    else
+        cout << "(" << idInceput << "," << idFinal << ")\n";
 }
+
 int main()
 {
     int i;
