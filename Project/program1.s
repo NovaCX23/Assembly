@@ -120,7 +120,26 @@ ADD:
             incl %eax
             movl %eax, idInceput
 
-            
+            #Afisare
+            pushl idFinal
+            pushl idInceput
+            pushl descriptor
+            pushl $Output_add
+            call printf
+            popl %ebx
+            popl %ebx
+            popl %ebx
+            popl %ebx
+
+            #updatare vector
+            movl idInceput, %ecx
+            update_vector:
+            movl descriptor, v(, %ecx, 4)
+            incl ecx%
+            cmp idFinal, %ecx
+            jle update_vector
+
+            jmp add_for_secundar_end
             
             #intoarcere fortata + incrementare 
             add_for_secundar_incrementare:
@@ -129,7 +148,21 @@ ADD:
                 jmp add_for_secundar
         
         add_for_secundar_end:
-            #break --- > aici pun cazul de 0,0
+            cmpl dimensiune, ctSLibere
+            je add_for_principal_end
+            
+            #cazul (0,0)
+            xorl %eax, %eax
+            pushl %eax
+            pushl %eax
+            movl descriptor, %eax
+            pushl %eax
+            pushl $Output_add
+            call printf
+            popl %eax
+            popl %eax
+            popl %eax
+            popl %eax
 
     add_for_principal_end:
         decl nrFis
