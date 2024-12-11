@@ -85,6 +85,7 @@ ADD:
 
 
         #calc dimensiune
+        xorl %edx, %edx
         movl dimensiune, %eax
         movl $8, %ecx
         divl %ecx
@@ -131,14 +132,18 @@ ADD:
             popl %ebx
             popl %ebx
 
+            pushl %ecx #de siguranta
+
             #updatare vector
-            movl idInceput, %ecx
+            movl idInceput, %eax
             update_vector:
-            movl descriptor, v(, %ecx, 4)
-            incl ecx%
-            cmp idFinal, %ecx
+            movl descriptor, %ecx
+            movl %ecx, v(, %eax, 4)
+            incl %eax
+            cmp idFinal, %eax
             jle update_vector
 
+            popl %ecx #de siguranta
             jmp add_for_secundar_end
             
             #intoarcere fortata + incrementare 
@@ -148,7 +153,8 @@ ADD:
                 jmp add_for_secundar
         
         add_for_secundar_end:
-            cmpl dimensiune, ctSLibere
+            mov ctSLibere, %ebx
+            cmp dimensiune, %ebx
             je add_for_principal_end
             
             #cazul (0,0)
