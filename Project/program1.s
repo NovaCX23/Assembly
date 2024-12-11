@@ -94,7 +94,7 @@ add_outer_loop:
     xorl %edx, %edx  # Clear upper 32 bits of dividend
     movl $8, %ecx
     divl %ecx        # Divide dimensiune by 8
-    testl %edx, %edx # Check remainder
+    cmp $0, %edx     # Check remainder
     je dim_ok        # If no remainder, skip increment
     incl %eax        # Increment to ceil
 dim_ok:
