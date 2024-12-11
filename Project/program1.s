@@ -11,7 +11,8 @@
 	j: .space 4
 	d: .space 4
 	Input: .asciz "%d"
-    Output: .asciz "%d\n"
+    Output_add: .asciz "%d:  (%d,%d)\n"
+    Output_get: .asciz "(%d,%d)\n"
 
 .text
 
@@ -99,7 +100,27 @@ ADD:
             pushl %ebx
             cmp $255, %ebx
             jge add_for_secundar_end
+            
+            #verificam daca v[d] == 0
+            movl v(,%ebx,4), %eax
+            cmp $0, %eax
+            jne resetare_spatii_libere
+            
+            #nu stiu sigur daca l-am folosit pe ecx, daca l am folosit ma intorc aici si-l pun in stiva
 
+            #Incrementam Spatiile Libere
+            incl ctSLibere
+            movl ctSLibere, %ecx
+            cmpl dimensiune, %ecx
+            jne add_for_secundar_incrementare
+
+            #Daca am gasit suficient spatiu
+            movl %eax , idFinal
+            subl dimensiune, %eax
+            incl %eax
+            movl %eax, idInceput
+
+            
             
             #intoarcere fortata + incrementare 
             add_for_secundar_incrementare:
@@ -117,6 +138,7 @@ ADD:
     add_end:
         jmp et_loopPrincipalNext
 
+#else ul de la for ul principal
 resetare_spatii_libere:
     movl $0, ctSLibere
     jmp add_for_secundar_incrementare
