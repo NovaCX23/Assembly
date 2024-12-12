@@ -60,18 +60,22 @@ void DELETE():
 {
     cin >> descriptor;
     for(int i = 0; i < 255; i++)
-        if(v[i] == descriptor) v[i] = 0;
-        else
-        {
-
-        }
+        if(v[i] == descriptor) w[i] = 0;
+        else w[i] = v[i]
+    
+    for(int i = 0; i < 255; i++)
+           { 
+            v[i] = w[i];
+            w[i] = 0;
+           }
+    
 }   
 void DEFRAG():
 {
-        int AUX[256] = {0}, counterAUX = 0;
+        int w[256] = {0}, counter_w = 0;
 
         for(int i = 0; i < 255; i++)
-            if(v[i] != 0)w[counterAUX++] = v[i];
+            if(v[i] != 0)w[counter_w++] = v[i];
 
         for(int i = 0; i < 255; i++)
            { 

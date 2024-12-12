@@ -232,11 +232,57 @@ get_caz_special:
 
 DELETE:
 
+# Citim descriptorul
+    pushl $descriptor         
+    pushl $Input               
+    call scanf                 
+    addl $8, %esp              
+
+    # Inițializare registru pentru iterație
+    movl $0, %eax              
+
+delete_Loop:
+    # Verificăm dacă am terminat iterația
+    cmpl $255, %eax            
+    je delete_afisare              
+
+    # Calculăm adresele pentru v[%eax] și w[%eax]
+    movl v(,%eax,4), %ebx      
+
+    # Comparăm valoarea din v[%eax] cu descriptorul
+    cmpl descriptor, %ebx      
+    jne delete_Copy            # Dacă nu sunt egale, mergem la copiere
+
+    # Dacă sunt egale, setăm w[%eax] = 0
+    movl $0, w(,%eax,4)        
+    jmp delete_Next            # Continuăm cu următorul element
+
+delete_Copy:
+    # Copiem v[%eax] în w[%eax]
+    movl %ebx, w(,%eax,4)    # w[%eax] = v[%eax]
+
+delete_Next:
+    incl %eax                  
+    jmp delete_Loop            # Repetăm bucla
+
+delete_afisare:
+    jmp delete_end
+
+    
+
+delete_end:
+    jmp loopPrincipalNext
+
+
+
+
+
+
 
 DEFRAGMENTATION:
-# intrebare notabila , are initial vectorul auxiliar toate elementele 0 sau trebuie sa le incarc eu cu 0  
+# !!!trebuie afisare cum vreau rusu dar voi face o functie comuna de afisare pt delete si defrag 
 
-movl $0, counter_w
+    movl $0, counter_w
 
 # Loop pentru copierea valorilor nenule din v în w
     movl $0, %eax   # indexului pentru v și w
@@ -270,7 +316,7 @@ defrag_FinishCopy:
 
 defrag_OverwriteLoop:
     cmpl $255, %eax        
-    je defrag_end        
+    je defrag_afisare        
 
     # Accesăm w[%eax]
     movl w(,%eax,4), %ebx 
@@ -281,6 +327,14 @@ defrag_OverwriteLoop:
     incl %eax
     jmp defrag_OverwriteLoop
 
+
+defrag_afisare:
+    jmp defrag_end
+
+
 defrag_end:
     jmp loopPrincipalNext
+
+
+
 
