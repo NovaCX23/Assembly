@@ -71,10 +71,13 @@ void DEFRAG():
         int AUX[256] = {0}, counterAUX = 0;
 
         for(int i = 0; i < 255; i++)
-            if(v[i])AUX[counterAUX++] = v[i];
+            if(v[i] != 0)w[counterAUX++] = v[i];
 
         for(int i = 0; i < 255; i++)
-            v[i] = AUX[i];
+           { 
+            v[i] = w[i];
+            w[i] = 0;
+           }
 }
 
 

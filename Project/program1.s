@@ -65,7 +65,8 @@ ADD:
 
     movl nrFis, %ecx  # Counter loop exterior
 
-add_outer_loop:
+add_loop_principal:
+    pushl %ecx
     cmpl $0, %ecx
     je add_end  
 
@@ -101,20 +102,20 @@ dim_ok:
 
     # Loop interior pentru spatii libere
     xorl %ebx, %ebx  # %ebx = d 
-add_inner_loop:
+add_loop_secundar:
     cmpl $255, %ebx
     jge add_no_space  
 
     # If v[d] == 0
     movl v(,%ebx,4), %eax
     cmpl $0, %eax
-    jne add_reset_free_count
-
+    jne add_resetare_spatii
+    
     # Increment free space counter
     incl ctSLibere
     movl ctSLibere, %eax
     cmpl dimensiune, %eax
-    jne add_continue  # Not enough space yet
+    jne add_loop_secundar_continue  # Not enough space yet
 
     # Suficient spatiu
     movl %ebx, idFinal
@@ -141,14 +142,14 @@ add_update_loop:
     cmpl idFinal, %eax
     jle add_update_loop
 
-    jmp add_outer_continue
+    jmp add_loop_principal_continue
 
-add_reset_free_count:
+add_resetare_spatii:
     movl $0, ctSLibere
 
-add_continue:
+add_loop_secundar_continue:
     incl %ebx
-    jmp add_inner_loop
+    jmp add_loop_secundar
 
 add_no_space:
     # Cazul (0,0)
@@ -159,9 +160,10 @@ add_no_space:
     call printf
     addl $16, %esp  
 
-add_outer_continue:
+add_loop_principal_continue:
+    popl %ecx
     decl %ecx
-    jmp add_outer_loop
+    jmp add_loop_principal
 add_end:
     jmp loopPrincipalNext
 
@@ -232,6 +234,7 @@ DELETE:
 
 
 DEFRAGMENTATION:
+# intrebare notabila , are initial vectorul auxiliar toate elementele 0 sau trebuie sa le incarc eu cu 0  
 
 movl $0, counter_w
 
@@ -250,7 +253,7 @@ defrag_CopyLoop:
     je defrag_NextElement  
 
     # Dacă v[%eax] este nenul, copiem valoarea în w[counter_w]
-    movl counter_W, %ecx  
+    movl counter_w, %ecx  
     movl v(,%eax,4), %ebx  
     movl %ebx, w(,%ecx,4) # w[counter_w] = v[%eax]
 
