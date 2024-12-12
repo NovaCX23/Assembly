@@ -314,7 +314,11 @@ delete_afisare_loop:
     movl %ebx, idFinal         
     jmp delete_afisare_next
 
-delete_afisare_different:   
+delete_afisare_different:  
+    # Ignorăm descriptorul `0` (nu afișăm pentru blocuri libere)
+    cmpl $0, descriptor
+    je delete_afisare_cazul00
+
     # Afișăm descriptorul curent și intervalul său
     pushl idFinal              
     pushl idInceput            
@@ -323,6 +327,7 @@ delete_afisare_different:
     call printf                
     addl $16, %esp             # Curățăm stiva  
 
+delete_afisare_cazul00:
     # Actualizăm descriptorul cu v[i]
     movl v(,%ebx,4), %eax      
     movl %eax, descriptor      
@@ -330,6 +335,7 @@ delete_afisare_different:
     # Actualizăm idInceput și idFinal cu i
     movl %ebx, idInceput       # idInceput = i
     movl %ebx, idFinal         # idFinal = i
+
 
 delete_afisare_next:
     incl %ebx                  
