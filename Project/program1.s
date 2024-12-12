@@ -281,9 +281,69 @@ delete_OverwriteLoop:
     incl %eax
     jmp delete_OverwriteLoop
 
+
+# Probabil voi transforma delete_afisare intr o afisare pt delete & defrag
 delete_afisare:
+    # !!!!!!!! daca nu merge cum trebuie pune pe stiva toti registrii pe care i folosesti sa fa pop la sfarsit !!!!!!!1
+
+    # Inițializăm variabilele
+    xorl %ebx, %ebx            # contor
+    movl $0, idInceput        
+    movl $0, idFinal           
+    movl v, %eax               # descriptor = v[0]
+    movl %eax, descriptor
+
+    movl $1, %ebx              # i = 1 (începem de la al doilea element)
     
-    jmp delete_end
+delete_afisare_loop:
+    cmpl $255, %ebx
+    je delete_afisare_end
+
+    # Verificam daca v[i] == 0
+    movl v(,%ebx,4), %eax             # %eax = v[i]
+    cmpl $0, %eax
+    je delete_afisare_next
+    
+    
+    # Verificăm dacă v[i] == descriptor
+    cmpl descriptor, %eax      
+    jne delete_afisare_different      # Dacă nu sunt egale, tratăm cazul diferit
+
+
+    # Dacă v[i] == descriptor, actualizăm idFinal
+    movl %ebx, idFinal         
+    jmp delete_afisare_next
+
+delete_afisare_different:   
+    # Afișăm descriptorul curent și intervalul său
+    pushl idFinal              
+    pushl idInceput            
+    pushl descriptor           
+    pushl $Output_add          # Formatul de afișare: "%d:  (%d,%d)\n"
+    call printf                
+    addl $16, %esp             # Curățăm stiva  
+
+    # Actualizăm descriptorul cu v[i]
+    movl v(,%ebx,4), %eax      
+    movl %eax, descriptor      
+
+    # Actualizăm idInceput și idFinal cu i
+    movl %ebx, idInceput       # idInceput = i
+    movl %ebx, idFinal         # idFinal = i
+
+delete_afisare_next:
+    incl %ebx                  
+    jmp delete_afisare_loop           # Repetăm bucla
+
+delete_afisare_end:
+    # Afișăm ultima secțiune
+    pushl idFinal              # Parametru: idFinal
+    pushl idInceput            # Parametru: idInceput
+    pushl descriptor           # Parametru: descriptor
+    pushl $Output_add          # Formatul de afișare: "%d:  (%d,%d)\n"
+    call printf                # Apelăm printf
+    addl $16, %esp             # Curățăm stiva
+
 
 delete_end:
     jmp loopPrincipalNext
@@ -292,10 +352,8 @@ delete_end:
 
 
 
-
-
 DEFRAGMENTATION:
-# !!!trebuie afisare cum vreau rusu dar voi face o functie comuna de afisare pt delete si defrag 
+# !!!trebuie afisare cum vrea rusu dar voi face o functie comuna de afisare pt delete si defrag 
 
     movl $0, counter_w
 
@@ -344,7 +402,7 @@ defrag_OverwriteLoop:
 
 
 defrag_afisare:
-    jmp defrag_end
+    jmp delete_afisare
 
 
 defrag_end:
