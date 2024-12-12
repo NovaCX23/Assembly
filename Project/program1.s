@@ -282,9 +282,8 @@ delete_OverwriteLoop:
     jmp delete_OverwriteLoop
 
 
-# Probabil voi transforma delete_afisare intr o afisare pt delete & defrag
+# Probabil voi transforma delete_afisare intr o afisare pt delete & defrag -> MERGE
 delete_afisare:
-    # !!!!!!!! daca nu merge cum trebuie pune pe stiva toti registrii pe care i folosesti sa fa pop la sfarsit !!!!!!!1
 
     # Inițializăm variabilele
     xorl %ebx, %ebx            # contor
@@ -356,8 +355,6 @@ delete_end:
 
 
 
-
-
 DEFRAGMENTATION:
 # !!!trebuie afisare cum vrea rusu dar voi face o functie comuna de afisare pt delete si defrag 
 
@@ -408,11 +405,8 @@ defrag_OverwriteLoop:
 
 
 defrag_afisare:
+    # folosesc exact acceasi afisare ca la delete 
     jmp delete_afisare
-
-
-defrag_end:
-    jmp loopPrincipalNext
 
 
 
