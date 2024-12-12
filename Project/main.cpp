@@ -70,6 +70,8 @@ void DELETE():
            }
     
 }   
+
+
 void DEFRAG():
 {
         int w[256] = {0}, counter_w = 0;
@@ -82,6 +84,11 @@ void DEFRAG():
             v[i] = w[i];
             w[i] = 0;
            }
+}
+
+void afisare():
+{
+    
 }
 
 

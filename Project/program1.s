@@ -244,7 +244,7 @@ DELETE:
 delete_Loop:
     # Verificăm dacă am terminat iterația
     cmpl $255, %eax            
-    je delete_afisare              
+    je delete_beforeOverwriteLoop              
 
     # Calculăm adresele pentru v[%eax] și w[%eax]
     movl v(,%eax,4), %ebx      
@@ -265,10 +265,25 @@ delete_Next:
     incl %eax                  
     jmp delete_Loop            # Repetăm bucla
 
-delete_afisare:
-    jmp delete_end
+delete_beforeOverwriteLoop:
+    movl $0, %eax
 
+delete_OverwriteLoop:
+    cmpl $255, %eax        
+    je delete_afisare        
+
+    # Accesăm w[%eax]
+    movl w(,%eax,4), %ebx 
+    movl $0, w(,%eax,4) # resetare vector auxiliar
+    movl %ebx, v(,%eax,4)    # v[%eax] = w[%eax]
+
+    # Incrementăm %eax și revenim
+    incl %eax
+    jmp delete_OverwriteLoop
+
+delete_afisare:
     
+    jmp delete_end
 
 delete_end:
     jmp loopPrincipalNext
