@@ -1,6 +1,10 @@
+#TO DO: REZOLVA CAZUL CU (0,0) LA AFISAREA MEMORIEI, INCLUSIV CAND FACI GET INAINTE DE ALTA OPERATIE
+
+
+
 .data
-	v: .space 1024
-    w: .space 1028
+	v: .space 4200
+    w: .space 4200
 	nrFis: .space 4
 	nrOp: .space 4
 	tipOp: .space 4
@@ -13,8 +17,8 @@
 	d: .space 4
     counter_w: .space 4
 	Input: .asciz "%d"
-    Output_add: .asciz "%d:  (%d,%d)\n"
-    Output_get: .asciz "(%d,%d)\n"
+    Output_add: .asciz "%d: (%d, %d)\n"
+    Output_get: .asciz "(%d, %d)\n"
 
 .text
 
@@ -103,7 +107,7 @@ dim_ok:
     # Loop interior pentru spatii libere
     xorl %ebx, %ebx  # %ebx = d 
 add_loop_secundar:
-    cmpl $255, %ebx
+    cmpl $1024, %ebx
     jge add_no_space  
 
     # If v[d] == 0
@@ -130,6 +134,10 @@ add_loop_secundar:
     pushl $Output_add
     call printf
     addl $16, %esp  
+
+    pushl $0
+	call fflush
+	addl $4, %esp
 
     # Actualizare array
     movl idInceput, %eax
@@ -160,6 +168,10 @@ add_no_space:
     call printf
     addl $16, %esp  
 
+    pushl $0
+	call fflush
+	addl $4, %esp
+
 add_loop_principal_continue:
     popl %ecx
     decl %ecx
@@ -167,7 +179,6 @@ add_loop_principal_continue:
 add_end:
     popl %ecx
     jmp loopPrincipalNext
-
 
 
 
@@ -185,7 +196,7 @@ GET:
     xorl %ecx, %ecx # d=0
 
 get_loop:
-    cmpl $255, %ecx
+    cmpl $1024, %ecx
     je get_end
 
     movl v(,%ecx,4), %eax
@@ -220,6 +231,10 @@ get_end:
     call printf
     addl $12, %esp
 
+    pushl $0
+	call fflush
+	addl $4, %esp
+
     jmp loopPrincipalNext
 
 get_caz_special:
@@ -229,7 +244,14 @@ get_caz_special:
     pushl $Output_get
     call printf
     addl $12, %esp
+
+    pushl $0
+	call fflush
+	addl $4, %esp
+
     jmp loopPrincipalNext
+
+
 
 
 DELETE:
@@ -245,7 +267,7 @@ DELETE:
 
 delete_Loop:
     # Verificăm dacă am terminat iterația
-    cmpl $255, %eax            
+    cmpl $1024, %eax            
     je delete_beforeOverwriteLoop              
 
     # Calculăm adresele pentru v[%eax] și w[%eax]
@@ -271,7 +293,7 @@ delete_beforeOverwriteLoop:
     movl $0, %eax
 
 delete_OverwriteLoop:
-    cmpl $255, %eax        
+    cmpl $1024, %eax        
     je delete_afisare        
 
     # Accesăm w[%eax]
@@ -287,6 +309,8 @@ delete_OverwriteLoop:
 # Probabil voi transforma delete_afisare intr o afisare pt delete & defrag -> MERGE
 delete_afisare:
 
+
+
     # Inițializăm variabilele
     xorl %ebx, %ebx            # contor
     movl $0, idInceput        
@@ -297,7 +321,7 @@ delete_afisare:
     movl $1, %ebx              # i = 1 (începem de la al doilea element)
     
 delete_afisare_loop:
-    cmpl $255, %ebx
+    cmpl $1024, %ebx
     je delete_afisare_end
 
     # Verificam daca v[i] == 0
@@ -316,7 +340,7 @@ delete_afisare_loop:
     jmp delete_afisare_next
 
 delete_afisare_different:  
-    # Ignorăm descriptorul `0` (nu afișăm pentru blocuri libere)
+    # Ignorăm descriptorul 0 (nu afișăm pentru blocuri libere)
     cmpl $0, descriptor
     je delete_afisare_cazul00
 
@@ -327,6 +351,10 @@ delete_afisare_different:
     pushl $Output_add          # Formatul de afișare: "%d:  (%d,%d)\n"
     call printf                
     addl $16, %esp             # Curățăm stiva  
+
+    pushl $0
+	call fflush
+	addl $4, %esp
 
 delete_afisare_cazul00:
     # Actualizăm descriptorul cu v[i]
@@ -351,6 +379,10 @@ delete_afisare_end:
     call printf                # Apelăm printf
     addl $16, %esp             # Curățăm stiva
 
+    pushl $0
+	call fflush
+	addl $4, %esp
+
 
 delete_end:
     jmp loopPrincipalNext
@@ -366,7 +398,7 @@ DEFRAGMENTATION:
     movl $0, %eax   # indexului pentru v și w
 
 defrag_CopyLoop:
-    cmpl $255, %eax    
+    cmpl $1024, %eax    
     je defrag_FinishCopy 
 
     # Accesăm v[%eax]
@@ -393,7 +425,7 @@ defrag_FinishCopy:
     movl $0, %eax          # inițializarea indexului pentru w și v
 
 defrag_OverwriteLoop:
-    cmpl $255, %eax        
+    cmpl $1024, %eax        
     je defrag_afisare        
 
     # Accesăm w[%eax]
@@ -409,7 +441,3 @@ defrag_OverwriteLoop:
 defrag_afisare:
     # folosesc exact acceasi afisare ca la delete 
     jmp delete_afisare
-
-
-
-
