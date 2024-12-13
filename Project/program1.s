@@ -165,6 +165,7 @@ add_loop_principal_continue:
     decl %ecx
     jmp add_loop_principal
 add_end:
+    popl %ecx
     jmp loopPrincipalNext
 
 
