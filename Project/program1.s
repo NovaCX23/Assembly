@@ -294,7 +294,7 @@ delete_beforeOverwriteLoop:
 
 delete_OverwriteLoop:
     cmpl $1024, %eax        
-    je delete_afisare        
+    je afisare        
 
     # Accesăm w[%eax]
     movl w(,%eax,4), %ebx 
