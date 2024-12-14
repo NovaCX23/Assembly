@@ -309,80 +309,84 @@ delete_OverwriteLoop:
 # Probabil voi transforma delete_afisare intr o afisare pt delete & defrag -> MERGE
 delete_afisare:
 
-
-
     # Inițializăm variabilele
-    xorl %ebx, %ebx            # contor
-    movl $0, idInceput        
-    movl $0, idFinal           
-    movl v, %eax               # descriptor = v[0]
-    movl %eax, descriptor
+    xorl %ebx, %ebx              # contor i = 0
+    movl $0, idInceput           
+    movl $0, idFinal          
+    movl v, %eax                 # descriptor = v[0]
+    movl %eax, descriptor        # setăm descriptor-ul inițial
 
-    movl $1, %ebx              # i = 1 (începem de la al doilea element)
+    movl $1, %ebx                # începem de la al doilea element (i = 1)
     
 delete_afisare_loop:
-    cmpl $1024, %ebx
+    cmpl $1024, %ebx             # Dacă i >= 1024, ieșim din buclă
     je delete_afisare_end
 
-    # Verificam daca v[i] == 0
-    movl v(,%ebx,4), %eax             # %eax = v[i]
-    cmpl $0, %eax
+    # Verificăm dacă v[i] == 0 (bloc liber)
+    movl v(,%ebx,4), %eax       
+    cmpl $0, %eax                # Dacă v[i] este 0, trecem la următorul
     je delete_afisare_next
     
-    
-    # Verificăm dacă v[i] == descriptor
-    cmpl descriptor, %eax      
-    jne delete_afisare_different      # Dacă nu sunt egale, tratăm cazul diferit
-
+    # Verificăm dacă v[i] este un descriptor valid
+    cmpl descriptor, %eax        # Dacă v[i] nu e egal cu descriptorul curent
+    jne delete_afisare_different # Continuăm cu altceva
 
     # Dacă v[i] == descriptor, actualizăm idFinal
-    movl %ebx, idFinal         
-    jmp delete_afisare_next
+    movl %ebx, idFinal           
+    jmp delete_afisare_next      # trecem la următorul element
 
 delete_afisare_different:  
-    # Ignorăm descriptorul 0 (nu afișăm pentru blocuri libere)
-    cmpl $0, descriptor
-    je delete_afisare_cazul00
+    # Verificăm dacă descriptorul curent e valid
+    cmpl $1300, descriptor       # Dacă descriptorul este invalid (1300), nu afișăm
+    je delete_afisare_cazul00    # Dacă este invalid, trecem la altceva
 
-    # Afișăm descriptorul curent și intervalul său
-    pushl idFinal              
-    pushl idInceput            
-    pushl descriptor           
-    pushl $Output_add          # Formatul de afișare: "%d:  (%d,%d)\n"
-    call printf                
-    addl $16, %esp             # Curățăm stiva  
+    # Afișăm descriptorul curent și intervalul
+    pushl idFinal                
+    pushl idInceput             
+    pushl descriptor            
+    pushl $Output_add            # Formatul de afișare: "%d:  (%d,%d)\n"
+    call printf                  
+    addl $16, %esp                
 
     pushl $0
-	call fflush
-	addl $4, %esp
+    call fflush                  
+    addl $4, %esp               
 
 delete_afisare_cazul00:
-    # Actualizăm descriptorul cu v[i]
-    movl v(,%ebx,4), %eax      
-    movl %eax, descriptor      
+    # Actualizăm descriptorul cu v[i] (bloc liber)
+    movl v(,%ebx,4), %eax        
+    movl %eax, descriptor
 
     # Actualizăm idInceput și idFinal cu i
-    movl %ebx, idInceput       # idInceput = i
-    movl %ebx, idFinal         # idFinal = i
-
+    movl %ebx, idInceput         
+    movl %ebx, idFinal           
 
 delete_afisare_next:
-    incl %ebx                  
-    jmp delete_afisare_loop           # Repetăm bucla
+    incl %ebx                     # Incrementăm contorul 
+    jmp delete_afisare_loop       # Continuăm bucla
 
 delete_afisare_end:
     # Afișăm ultima secțiune
-    pushl idFinal              # Parametru: idFinal
-    pushl idInceput            # Parametru: idInceput
-    pushl descriptor           # Parametru: descriptor
-    pushl $Output_add          # Formatul de afișare: "%d:  (%d,%d)\n"
-    call printf                # Apelăm printf
-    addl $16, %esp             # Curățăm stiva
+    cmpl $1300, descriptor        # Verificăm dacă descriptorul curent e invalid
+    je delete_afisare_iesire      # Dacă este invalid, ieșim din funcție
+
+    cmpl $0, idInceput            # Verificăm dacă idInceput este valid
+    je delete_afisare_iesire      # Dacă idInceput e 0, nu afișăm nimic
+
+    # Afișăm descriptorul și intervalul pentru ultima secțiune
+    pushl idFinal                 
+    pushl idInceput               
+    pushl descriptor              
+    pushl $Output_add             # Formatul de afișare: "%d:  (%d,%d)\n"
+    call printf                   
+    addl $16, %esp                
 
     pushl $0
-	call fflush
-	addl $4, %esp
+    call fflush                  
+    addl $4, %esp                 
 
+delete_afisare_iesire:
+    jmp delete_end                # Sarim la 'delete_end' pentru a continua executia
 
 delete_end:
     jmp loopPrincipalNext
