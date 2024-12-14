@@ -88,22 +88,29 @@ void DEFRAG():
 
 void afisare():
 {
-    idInceput = 0;
-    idFinal = 0;
-    descriptor = v[0];
-    for(i = 1; i < 255; i ++)
-    {
-        if(descriptor == v[i]){
-            idFinal = i;
-        }
-        else
+    for(int i = 0; i <= 1024; i++)
+        if(descriptor == 0)
         {
-            cout << descriptor << ":  " << "(" << idInceput << "," << idFinal << ")\n";
-            descriptor = v[i];
-            idInceput = idFinal = i;
+            if(v[i] != 0)
+            {
+                descriptor = v[i];
+                indexInceput = i;
+            }
         }
-    }
+        else if(descriptor != 0)
+        {
+            if(v[i] == descriptor)
+                indexFinal = i;
+            else
+            {
+                cout << descriptor << ":  (" << indexInceput << "," << indexFinal << ")\n";
+                descriptor = v[i];
+                indexInceput = i;
+            }
+        }
+
 }
+
 
 
 int main()
