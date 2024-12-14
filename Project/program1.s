@@ -1,7 +1,3 @@
-#TO DO: REZOLVA CAZUL CU (0,0) LA AFISAREA MEMORIEI, INCLUSIV CAND FACI GET INAINTE DE ALTA OPERATIE
-
-
-
 .data
 	v: .space 4200
     w: .space 4200
@@ -334,6 +330,10 @@ afisare_loop:
     pushl $Output_add           # Formatul de afișare: "%d: (%d, %d)\n"
     call printf
     addl $16, %esp
+
+    pushl $0
+    call fflush
+    addl $4, %esp
 
     # Resetăm descriptor și idInceput
     movl v(,%ebx, 4), %eax # descriptor = v[i]
