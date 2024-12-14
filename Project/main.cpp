@@ -94,18 +94,18 @@ void afisare():
             if(v[i] != 0)
             {
                 descriptor = v[i];
-                indexInceput = i;
+                idInceput = i;
             }
         }
         else if(descriptor != 0)
         {
             if(v[i] == descriptor)
-                indexFinal = i;
+                idFinal = i;
             else
             {
-                cout << descriptor << ":  (" << indexInceput << "," << indexFinal << ")\n";
+                cout << descriptor << ":  (" << idInceput << "," << idFinal << ")\n";
                 descriptor = v[i];
-                indexInceput = i;
+                idInceput = i;
             }
         }
 

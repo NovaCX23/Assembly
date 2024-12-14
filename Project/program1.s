@@ -310,54 +310,58 @@ delete_OverwriteLoop:
 afisare:
     # Inițializăm variabilele
     movl $0, descriptor         # descriptor = 0
-    movl $1026, idInceput      
-    movl $1026, idFinal        
-    xorl %ebx, %ebx               # i = 0
-    
+    movl $0, idInceput          # idInceput = 0
+    movl $0, idFinal            # idFinal = 0
+    xorl %ebx, %ebx             # i = 0 (index pentru parcurgerea vectorului v)
 
 afisare_loop:
-    cmpl $1024, %ebx
-    je afisare_end
-    
-    cmpl $0, descriptor     # verificam daca descriptorul este 0
-    jne schimbare_idfinal
+    cmpl $1024, %ebx            # Comparăm i cu 1024
+    jg afisare_end              # Dacă i > 1024, ieșim din buclă
 
-    movl v(,%ebx, 4), %eax     # verificam daca v[i] == 0
-    cmpl $0, %eax
-    je afisare_nextloop
+    # Verificăm dacă descriptor == 0
+    cmpl $0, descriptor
+    je afisare_check_v          # Dacă descriptor = 0, verificăm v[i]
 
+    # Dacă descriptor != 0, verificăm dacă v[i] == descriptor
+    movl v(,%ebx, 4), %eax      # %eax = v[i]
+    cmpl descriptor, %eax
+    je afisare_update_idFinal   # Dacă v[i] == descriptor, actualizăm idFinal
+
+    # Afișăm intervalul anterior
+    pushl idFinal
+    pushl idInceput
+    pushl descriptor
+    pushl $Output_add           # Formatul de afișare: "%d: (%d, %d)\n"
+    call printf
+    addl $16, %esp
+
+    # Resetăm descriptor și idInceput
+    movl v(,%ebx, 4), %eax # descriptor = v[i]
     movl %eax, descriptor
-    movl %ebx, idInceput
+    movl %ebx, idInceput        # idInceput = i
     jmp afisare_nextloop
 
-schimbare_idfinal:
-    movl v(,%ebx, 4), %eax
-    cmpl %eax, descriptor
-    jne afisare_printare_interval
-    
-    movl %ebx, idFinal
+afisare_update_idFinal:
+    # Dacă v[i] == descriptor, actualizăm idFinal
+    movl %ebx, idFinal          # idFinal = i
+    jmp afisare_nextloop
+
+afisare_check_v:
+    # Verificăm dacă v[i] != 0
+    movl v(,%ebx, 4), %eax      # %eax = v[i]
+    cmpl $0, %eax
+    je afisare_nextloop         # Dacă v[i] == 0, continuăm la următoarea iterație
+
+    # Dacă v[i] != 0 și descriptor == 0, setăm descriptor = v[i] și idInceput = i
+    movl %eax, descriptor       # descriptor = v[i]
+    movl %ebx, idInceput        # idInceput = i
 
 afisare_nextloop:
-    incl %ebx
-    jmp afisare_loop
-
-afisare_printare_interval:
-
-    # printul 
-    pushl idFinal            
-    pushl idInceput          
-    pushl descriptor            
-    pushl $Output_add           
-    call printf
-    addl $16, %esp             
-
-    movl %eax, descriptor
-    movl %ebx, idInceput
-    jmp afisare_nextloop
+    incl %ebx                   # i++
+    jmp afisare_loop            # Continuăm bucla
 
 afisare_end:
-    jmp loopPrincipalNext
-
+    jmp loopPrincipalNext                         # Întoarcem la funcția apelantă
 
 
 DEFRAGMENTATION:
