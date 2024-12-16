@@ -148,7 +148,9 @@ add_loop_principal:
 
             # Afisare 
             pushl idFinal
+            pushl lineIndex
             pushl idInceput
+            pushl lineIndex
             pushl descriptor
             pushl $Output
             call printf
