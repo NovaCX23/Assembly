@@ -27,7 +27,8 @@
 
 .global main
 main:
-	lea v, %edi
+	lea matrix, %edi
+
     pushl $nrOp
 	pushl $Input
 	call scanf
@@ -130,7 +131,7 @@ add_loop_principal:
             mull columns
             addl columnIndex, %eax
             
-            movl v(, %eax, 4), %ebx         # %ebx = v[k][d]
+            movl (%edi, %eax, 4), %ebx         # %ebx = matrix[k][d]
 
             cmp $0, %ebx
             jne add_resetare_spatii         
@@ -164,7 +165,7 @@ add_loop_principal:
             movl idInceput, %eax
             add_update_matrice:
                 movl descriptor, %ebx
-                movl %ebx, v(,%eax,4)
+                movl %ebx, (%edi,%eax,4)
                 incl %eax
                 cmpl idFinal, %eax
                 jle add_update_matrice
