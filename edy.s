@@ -2,10 +2,10 @@
 	matrix: .space 1048588
     matrix_w: .space 1048588
 
-    lineIndex: .long 1024
-    columnIndex: .long 1024
-    lines: .space 4
-    columns: .space 4
+    lineIndex: .space 4
+    columnIndex: .space 4
+    lines: .long 8
+    columns: .long 8
 
 	nrFis: .space 4
 	nrOp: .space 4
@@ -110,7 +110,7 @@ add_loop_principal:
     incl %eax        
     
     dim_ok:
-        movl %eax, dimensiune
+    movl %eax, dimensiune
 
     movl $0, lineIndex
     add_loop_linii:
@@ -167,7 +167,7 @@ add_loop_principal:
             movl idInceput, %eax
             add_update_matrice:
                 movl descriptor, %ebx
-                movl %ebx, (%edi,%eax,4)
+                movl %ebx, (%edi, %eax, 4)
                 incl %eax
                 cmpl idFinal, %eax
                 jle add_update_matrice
@@ -191,7 +191,7 @@ add_loop_principal:
         je add_loop_principal_next
 
         # cazul00
-        pushl $1
+        pushl $0
         pushl $0
         pushl $0
         pushl $0
@@ -210,6 +210,7 @@ add_loop_principal_next:
     jmp add_loop_principal
 
 add_end:
+    popl %ecx
     jmp loopPrincipalNext
 
 

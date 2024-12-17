@@ -9,12 +9,13 @@ void ADD()
     cin >> nrFis;
     for(j = 0; j < nrFis; j++)
     {
-        ctSLib = 0;
+
         cin >> descriptor >> dimensiune;
         dimensiune = ceil(dimensiune / 8);
         
         for(k = 0; k < 255; k++)
         {
+            ctSLib = 0;
             for(d = 0; d < 255; d++)
             {
                 if(v[k][d] == 0)
@@ -38,6 +39,7 @@ void ADD()
     }
 }
 
+for( i = 0; i < )
 
 void GET()
 {
