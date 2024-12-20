@@ -50,6 +50,10 @@ loopPrincipal:
 loopPrincipalNext:
     popl %ecx
 	loop loopPrincipal
+
+    pushl $0
+    call fflush
+    popl %eax
 	
 	movl $1, %eax
 	xorl %ebx, %ebx
@@ -131,9 +135,7 @@ add_loop_secundar:
     call printf
     addl $16, %esp  
 
-    pushl $0
-	call fflush
-	addl $4, %esp
+
 
     # Actualizare array
     movl idInceput, %eax
@@ -164,9 +166,7 @@ add_no_space:
     call printf
     addl $16, %esp  
 
-    pushl $0
-	call fflush
-	addl $4, %esp
+
 
 add_loop_principal_continue:
     popl %ecx
@@ -227,9 +227,7 @@ get_end:
     call printf
     addl $12, %esp
 
-    pushl $0
-	call fflush
-	addl $4, %esp
+
 
     jmp loopPrincipalNext
 
@@ -241,9 +239,7 @@ get_caz_special:
     call printf
     addl $12, %esp
 
-    pushl $0
-	call fflush
-	addl $4, %esp
+
 
     jmp loopPrincipalNext
 
@@ -331,9 +327,7 @@ afisare_loop:
     call printf
     addl $16, %esp
 
-    pushl $0
-    call fflush
-    addl $4, %esp
+
 
     # Resetăm descriptor și idInceput
     movl v(,%ebx, 4), %eax # descriptor = v[i]
