@@ -191,7 +191,7 @@ add_loop_principal:
         je add_loop_principal_next
 
         # cazul00
-        pushl $1
+        pushl $0
         pushl $0
         pushl $0
         pushl $0
