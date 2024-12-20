@@ -4,7 +4,7 @@
 
     lineIndex: .space 4
     columnIndex: .space 4
-    
+
     lines: .long 8
     columns: .long 8
 
