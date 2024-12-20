@@ -210,6 +210,7 @@ add_loop_principal_next:
     jmp add_loop_principal
 
 add_end:
+    popl %ecx
     jmp loopPrincipalNext
 
 
