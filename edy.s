@@ -74,10 +74,13 @@ ADD:
 
     movl nrFis, %ecx  # Counter loop exterior
     
-    movl $0, lineIndex
-    movl $0, columnIndex
+
 
 add_loop_principal:
+
+    # ne asiguram ca matricea e parcursa de la inceput de fiecare data 
+
+
     pushl %ecx
     cmpl $0, %ecx
     je add_end  
