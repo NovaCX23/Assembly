@@ -122,8 +122,70 @@ add_loop_fisiere:
         cmp %ecx, lines
         je add_loop_linii_done
 
+        movl $0, ctSLibere
+        movl $0, columnIndex
+
+        # incepe loop-ul de coloane
+        add_loop_coloane:
+            movl columnIndex, %ecx
+            cmp %ecx, columns
+            je add_loop_linii_next
+
+            # Calculare element curent  -> v[k][d]
+            movl lineIndex, %eax
+            mull columns
+            addl columnIndex, %eax
+            movl (%edi, %eax, 4), %ebx      # %ebx = v[k][d]
+
+            cmp $0, %ebx
+            jne add_resetare_spatii
+
+            # daca v[k][d] == 0
+            addl $1, ctSLibere
+            
+            # verificam daca avem destul spatiu liber pt dimensiune, daca nu trecem la urm col
+            movl ctSLibere, %edx
+            cmp %edx, dimensiune
+            jne add_loop_coloane_next
+
+            # daca avem spatiu, calc indicii
+            movl %ecx, idFinal
+            incl %ecx
+            subl dimensiune, %ecx
+            movl %ecx, idInceput
+
+            # afisam intervalele
+            pushl idFinal
+            pushl lineIndex
+            pushl idInceput
+            pushl lineIndex
+            pushl descriptor
+            pushl $Output
+            call printf
+            addl $24, %esp  
+
+            # actualizam matricea 
+            movl idInceput, %ecx
+            add_update_matrice:
+                movl descriptor, %eax
+                movl %eax, (%edi, %ecx, 4)
+                 
+                incl %ecx
+                # daca am terminat de actualizat 
+                cmp %ecx, idFinal
+                jg add_loop_fisiere_next
+                
+                # altfel continuam
+                jmp add_update_matrice 
+
+            add_resetare_spatii:
+                movl $0, ctSLibere
+                jmp add_loop_coloane_next
 
 
+        add_loop_coloane_next:
+            addl $1, columnIndex
+            jmp add_loop_coloane
 
 
     add_loop_linii_next:
@@ -133,7 +195,7 @@ add_loop_fisiere:
 
     add_loop_linii_done:
         movl ctSLibere, %eax
-        je add_loop_fisiere_next            # verificam daca ctSLibere != dimeensiune
+        je add_loop_fisiere_next            # verificam daca ctSLibere != dimensiune
 
         # daca e diferit afisam cazul 00
         pushl $0

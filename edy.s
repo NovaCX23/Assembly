@@ -169,7 +169,7 @@ add_loop_principal:
                 movl descriptor, %ebx
                 movl %ebx, (%edi,%eax,4)
                 incl %eax
-                cmpl idFinal, %eax
+                cmp idFinal, %eax
                 jle add_update_matrice
             
             jmp add_loop_principal_next
@@ -210,6 +210,7 @@ add_loop_principal_next:
     jmp add_loop_principal
 
 add_end:
+    popl %ecx
     jmp loopPrincipalNext
 
 

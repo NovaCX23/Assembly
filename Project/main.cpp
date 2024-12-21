@@ -25,6 +25,7 @@ void ADD()
                             idInceput = d + 1 - dimensiune;
                             idFinal = d;
                             cout << descriptor << ":  " << "(" << idInceput << "," << idFinal << ")\n";
+                            
                             for(d = idInceput; d <= idFinal; d++)
                                 v[d] = descriptor;
                             break;
@@ -38,7 +39,7 @@ void ADD()
     }
 }
 
-for( i = 0; i < )
+
 
 void GET()
 {
