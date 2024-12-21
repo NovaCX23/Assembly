@@ -9,7 +9,6 @@ void ADD()
     cin >> nrFis;
     for(j = 0; j < nrFis; j++)
     {
-
         cin >> descriptor >> dimensiune;
         dimensiune = ceil(dimensiune / 8);
         

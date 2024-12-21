@@ -4,7 +4,7 @@
 
     lineIndex: .space 4
     columnIndex: .space 4
-
+    
     lines: .long 8
     columns: .long 8
 
@@ -73,11 +73,11 @@ ADD:
     addl $8, %esp 
 
     movl nrFis, %ecx  # Counter loop exterior
-    
+
     movl $0, lineIndex
     movl $0, columnIndex
 
-add_loop_principal:
+add_loop_fisiere:
     pushl %ecx
     cmpl $0, %ecx
     je add_end  
@@ -97,10 +97,10 @@ add_loop_principal:
     call scanf
     addl $8, %esp
 
-    # Verificare daca dimensiunea exista
+    # Verificare dimensiune
     movl dimensiune, %eax
     cmpl $0, %eax
-    je add_loop_principal_next
+    jle add_no_space
 
     # Dimensiune = ceil(dimensiune / 8)
     xorl %edx, %edx  
@@ -109,40 +109,41 @@ add_loop_principal:
     cmp $0, %edx     
     je dim_ok        
     incl %eax        
-    
     dim_ok:
         movl %eax, dimensiune
 
-    movl $0, lineIndex
+        # Loop interior pentru spatii libere
+        xorl %ebx, %ebx  # %ebx = d 
     add_loop_linii:
         movl lineIndex, %ecx
         cmp %ecx, lines
-        je add_loop_linii_done        # verificam daca am terminat liniile 
-
+        je add_loop_linii_done
 
         movl $0, ctSLibere
         # incepe loop ul de coloane
         movl $0, columnIndex
+    
         add_loop_coloane:
             movl columnIndex, %ecx
-		    cmp %ecx, columns
-		    je add_loop_linii_next          # Verificam daca s-a terminat linia
-                                            # daca da , trecem la urm
+            cmpl %ecx, columns
+            je add_loop_linii_next  
 
-            # calc pozitia elem curent in matrice
+            # calc elem curent matrice
             movl lineIndex, %eax
             mull columns
             addl columnIndex, %eax
             
-            movl (%edi, %eax, 4), %ebx         # %ebx = matrix[k][d]
+            movl (%edi, %eax, 4), %edx         # %edx = matrix[k][d]
 
-            cmp $0, %ebx
-            jne add_resetare_spatii         
+            # If v[k][d] == 0
+            cmpl $0, %edx
+            jne add_resetare_spatii
             
-            incl ctSLibere                  # Incrementăm ct de spatii libere
+            # Increment free space counter
+            incl ctSLibere
             movl ctSLibere, %eax
-            cmp %eax, dimensiune            
-            jne add_loop_coloane_next       # trecem la urm linie daca n avem loc
+            cmpl dimensiune, %eax
+            jne add_loop_coloane_next  # Not enough space yet
 
             # Suficient spatiu
             movl %ecx, idFinal
@@ -164,19 +165,19 @@ add_loop_principal:
             call fflush
             addl $4, %esp
 
-            # update matrice
+            # Actualizare array
             movl idInceput, %eax
-            add_update_matrice:
-                movl descriptor, %ebx
-                movl %ebx, (%edi,%eax,4)
-                incl %eax
-                cmpl idFinal, %eax
-                jle add_update_matrice
-            
-            jmp add_loop_principal_next
+        add_update_loop:
+            movl descriptor, %ebx
+            movl %ebx, (%edi,%eax,4)
+            incl %eax
+            cmpl idFinal, %eax
+            jle add_update_loop
 
-            add_resetare_spatii:
-                movl $0, ctSLibere
+            jmp add_loop_fisiere_next
+
+        add_resetare_spatii:
+            movl $0, ctSLibere
 
         add_loop_coloane_next:
             addl $1, columnIndex
@@ -189,26 +190,27 @@ add_loop_principal:
     add_loop_linii_done:
         movl ctSLibere, %eax
         cmp %eax, dimensiune
-        je add_loop_principal_next
+        je add_loop_fisiere_next
 
-        # cazul00
-        pushl $0
-        pushl $0
-        pushl $0
-        pushl $0
-        pushl descriptor
-        pushl $Output
-        call printf
-        addl $24, %esp  
+        add_no_space:
+            # Cazul (0,0)
+            pushl $0
+            pushl $0
+            pushl $0
+            pushl $0
+            pushl descriptor
+            pushl $Output
+            call printf
+            addl $24, %esp  
 
-        pushl $0
-        call fflush
-        addl $4, %esp
+            pushl $0
+            call fflush
+            addl $4, %esp
 
-add_loop_principal_next:
+add_loop_fisiere_next:
     popl %ecx
     decl %ecx
-    jmp add_loop_principal
+    jmp add_loop_fisiere
 
 add_end:
     popl %ecx
