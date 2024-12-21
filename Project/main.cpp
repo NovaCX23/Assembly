@@ -43,19 +43,21 @@ void ADD()
 
 void GET()
 {
-    int d, descriptor;
+    int i, j, descriptor;
     idInceput = idFinal = 1025;
     cin >> descriptor;
-    for(d = 0; d < 255; d++)
-    {
-        if(v[d] == descriptor)
+    for(i = 0; i < 255; i++)
+        for(j = 0; j < 255; j++)
         {
-            if(idInceput == 1025) idInceput = d;
-            idFinal = d;
+            
+            if(v[i][j] == descriptor)
+            {
+                if(idInceput == 1025) idInceput = d;
+                idFinal = d;
+            }
+            if(v[i][j] != descriptor && idFinal != 1025)
+                break;
         }
-        if(v[d] != descriptor && idFinal != 1025)
-            break;
-    }
     if(idInceput == 1025) // Dacă nu am găsit niciun descriptor
         cout << "(0,0)" << endl;
     else
@@ -64,15 +66,19 @@ void GET()
 
 void DELETE():
 {
+    int i, j;
     cin >> descriptor;
+    for(i = 0; i < 255; i++)
+    {
+        for(j = 0; j < 255; j++)
+            if(v[i][j] == descriptor) w[i][j] = 0;
+            else w[i][j] = v[i][j]
+    }
     for(int i = 0; i < 255; i++)
-        if(v[i] == descriptor) w[i] = 0;
-        else w[i] = v[i]
-    
-    for(int i = 0; i < 255; i++)
+        for(int j = 0; j < 255; j++)
            { 
-            v[i] = w[i];
-            w[i] = 0;
+                v[i][j] = w[i][j];
+                w[i][j] = 0;
            }
     
 }   

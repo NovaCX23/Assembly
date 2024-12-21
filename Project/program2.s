@@ -227,12 +227,93 @@ add_end:
 
 
 
-
-
-
 GET:
+    movl $1025, idInceput
+    movl $1025, idFinal
+    
+    # Citirea descriptorului
+    pushl $descriptor
+    pushl $Input
+    call scanf
+    addl $8, %esp
+
+    xorl %eax, %eax
+    xorl %ecx, %ecx # i=0
+    movl $0, lineIndex
+
+    # incepem primul for
+
+get_loop_linii:
+	movl lineIndex, %ecx
+	cmp %ecx, lines
+	je get_end
+
+	movl $0, columnIndex
+	get_loop_coloane:
+		movl columnIndex, %ecx
+		cmp %ecx, columns
+		je get_cont_loop_linii
+		
+		movl lineIndex, %eax
+		mull columns
+		addl columnIndex, %eax
+		
+		movl (%edi, %eax, 4), %ebx      # %ebx are elem curent matrix 
+        cmp %ebx, descriptor            # verificam daca elem curent e cel cautat
+        je get_indici
+		
+        get_cont_loop_coloane:
+		addl $1, columnIndex
+		jmp get_loop_coloane
+	
+    
+    get_indici:
+        cmpl $1025, idInceput # daca idInceput e ocupat 
+        jne get_id_final
+
+        movl %ecx, idInceput # altfel
+        pushl lineIndex
+        jmp get_cont_loop_coloane
+
+    get_id_final:
+        movl %ecx, idFinal
+        jmp get_cont_loop_coloane
 
 
+
+get_cont_loop_linii:
+    addl $1, lineIndex
+    jmp get_loop_linii
+
+get_end:
+    cmpl $1025, idInceput
+    je get_caz_special
+
+    popl lineIndex
+
+    # Afisare
+    pushl idFinal
+    pushl lineIndex
+    pushl idInceput
+    puhsl lineIndex
+    pushl $Output_get
+    call printf
+    addl $20, %esp
+
+    jmp loopPrincipalNext
+
+get_caz_special:
+    # Afișează caz special (dacă nu s-au găsit indicii)
+    pushl $0
+    pushl $0
+    pushl $0
+    pushl $0
+    pushl $Output_get
+    call printf
+    addl $20, %esp
+
+
+    jmp loopPrincipalNext
 
 
 DELETE:
