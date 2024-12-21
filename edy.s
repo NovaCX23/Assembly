@@ -2,10 +2,11 @@
 	matrix: .space 1048588
     matrix_w: .space 1048588
 
-    lineIndex: .long 1024
-    columnIndex: .long 1024
-    lines: .space 4
-    columns: .space 4
+    lineIndex: .space 4
+    columnIndex: .space 4
+
+    lines: .long 8
+    columns: .long 8
 
 	nrFis: .space 4
 	nrOp: .space 4
