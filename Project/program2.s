@@ -1,12 +1,12 @@
 .data
-	matrix: .space 1048588
-    matrix_w: .space 1048588
+	matrix: .space 4194304
+    matrix_w: .space 4194304
 
     lineIndex: .space 4
     columnIndex: .space 4
-    
-    lines: .long 8
-    columns: .long 8
+
+    lines: .long 1024
+    columns: .long 1024
 
 	nrFis: .space 4
 	nrOp: .space 4
@@ -23,6 +23,7 @@
     Output: .asciz "%d: ((%d, %d), (%d, %d))\n"
     Output_get: .asciz "((%d, %d), (%d, %d))\n"
     Print: .asciz "%d\n"
+
 
 .text
 
@@ -60,11 +61,16 @@ loopPrincipalNext:
     popl %ecx
 	loop loopPrincipal
 	
+    pushl $0
+    call fflush
+    addl $4, %esp
+
+
 	movl $1, %eax
 	xorl %ebx, %ebx
 	int $0x80
 
-
+# when i started only I and GOD knew how this worked, now only god knows, please don't change shit!!
 ADD:
     # Citire nr fisiere (nrFis)
     pushl $nrFis
@@ -72,12 +78,12 @@ ADD:
     call scanf
     addl $8, %esp 
 
-    movl nrFis, %ecx                # Counter loop fisiere
+    movl nrFis, %ecx  # Counter loop exterior
+    
+add_loop_principal:
 
-    movl $0, lineIndex
-    movl $0, columnIndex
+    # ne asiguram ca matricea e parcursa de la inceput de fiecare data 
 
-add_loop_fisiere:
     pushl %ecx
     cmpl $0, %ecx
     je add_end  
@@ -97,124 +103,130 @@ add_loop_fisiere:
     call scanf
     addl $8, %esp
 
-    # Verificare dimensiune
-    movl dimensiune, %eax
-    cmpl $0, %eax
-    jle add_no_space
 
     # Dimensiune = ceil(dimensiune / 8)
+    movl dimensiune, %eax
     xorl %edx, %edx  
     movl $8, %ecx
     divl %ecx        
     cmp $0, %edx     
     je dim_ok        
     incl %eax        
-    
     dim_ok:
     movl %eax, dimensiune
 
+
     movl $0, lineIndex
-    movl $0, columnIndex
-    
-    # Loop linii
-    add_loop_linii:
-        movl lineIndex, %ecx
-        cmp %ecx, lines
-        je add_loop_linii_done
+for_lines:
+	movl lineIndex, %ecx
+	cmp %ecx, lines
+	je add_loop_linii_end
+	
+    movl $0, ctSLibere
+    movl $0, idInceput
+    movl $0, idFinal
+	movl $0, columnIndex
+	for_columns:
+		movl columnIndex, %ecx
+		cmp %ecx, columns
+		je cont_for_lines
+		
+	
+		
+		movl lineIndex, %eax
+		mull columns
+		addl columnIndex, %eax
+		
+		movl (%edi, %eax, 4), %ebx # %ebx are elem curent
+
+        cmp $0, %ebx
+        je add_calcul
 
         movl $0, ctSLibere
-        movl $0, columnIndex
+        jmp for_columns_end
 
-        # incepe loop-ul de coloane
-        add_loop_coloane:
-            movl columnIndex, %ecx
-            cmp %ecx, columns
-            je add_loop_linii_next
+        add_calcul:
 
-            # Calculare element curent  -> v[k][d]
-            movl lineIndex, %eax
-            mull columns
-            addl columnIndex, %eax
-            movl (%edi, %eax, 4), %ebx      # %ebx = v[k][d]
+        incl ctSLibere
+        movl dimensiune, %edx
+        cmp ctSLibere, %edx
+        jne for_columns_end
 
-            cmp $0, %ebx
-            jne add_resetare_spatii
+        # idInceput = columnIndex + 1 - dimensiune;
+        movl columnIndex, %ecx
+        movl %ecx, idFinal
+        incl %ecx
+        subl %edx, %ecx
+        movl %ecx, idInceput
 
-            # daca v[k][d] == 0
-            addl $1, ctSLibere
-            
-            # verificam daca avem destul spatiu liber pt dimensiune, daca nu trecem la urm col
-            movl ctSLibere, %edx
-            cmp %edx, dimensiune
-            jne add_loop_coloane_next
-
-            # daca avem spatiu, calc indicii
-            movl %ecx, idFinal
-            incl %ecx
-            subl dimensiune, %ecx
-            movl %ecx, idInceput
-
-            # afisam intervalele
-            pushl idFinal
-            pushl lineIndex
-            pushl idInceput
-            pushl lineIndex
-            pushl descriptor
-            pushl $Output
-            call printf
-            addl $24, %esp  
-
-            # actualizam matricea 
-            movl idInceput, %ecx
-            add_update_matrice:
-                movl descriptor, %eax
-                movl %eax, (%edi, %ecx, 4)
-                 
-                incl %ecx
-                # daca am terminat de actualizat 
-                cmp %ecx, idFinal
-                jg add_loop_fisiere_next
-                
-                # altfel continuam
-                jmp add_update_matrice 
-
-            add_resetare_spatii:
-                movl $0, ctSLibere
-                jmp add_loop_coloane_next
-
-
-        add_loop_coloane_next:
-            addl $1, columnIndex
-            jmp add_loop_coloane
-
-
-    add_loop_linii_next:
-        addl $1, lineIndex
-        jmp add_loop_linii
-
-
-    add_loop_linii_done:
-        movl ctSLibere, %eax
-        je add_loop_fisiere_next            # verificam daca ctSLibere != dimensiune
-
-        # daca e diferit afisam cazul 00
-        pushl $0
-        pushl $0
-        pushl $0
-        pushl $0
+        pushl %eax
+        pushl %edx
+        pushl idFinal
+        pushl lineIndex
+        pushl idInceput
+        pushl lineIndex
         pushl descriptor
         pushl $Output
         call printf
-        addl $24, %esp  
+        addl $24, %esp
+        popl %edx
+        popl %eax
 
-add_loop_fisiere_next:
+        # idInceput = (lineIndex * columns + columnIndex) + 1 - dimensiune;
+        movl %eax, idFinal
+        incl %eax
+        subl %edx, %eax
+        movl %eax, idInceput
+
+
+        movl idInceput, %eax
+        add_Memorie:
+        cmp idFinal, %eax
+        jg add_loop_linii_end
+
+        movl descriptor, %ecx
+        movl %ecx, (%edi, %eax, 4)
+        incl %eax
+        jmp add_Memorie
+
+		
+		for_columns_end:
+		addl $1, columnIndex
+		jmp for_columns
+	
+cont_for_lines:
+
+
+	addl $1, lineIndex
+	jmp for_lines
+
+
+    add_loop_linii_end:
+
+    cmp ctSLibere, %edx
+    je add_loop_linii_end_skip
+
+    pushl $0
+    pushl $0
+    pushl $0
+    pushl $0
+    pushl descriptor
+    pushl $Output
+    call printf
+    addl $24, %esp
+
+    add_loop_linii_end_skip:
     popl %ecx
     decl %ecx
-    jmp add_loop_fisiere
-
+    jmp add_loop_principal
 add_end:
     popl %ecx
     jmp loopPrincipalNext
+
+
+
+
+
 
 
 
