@@ -317,8 +317,88 @@ get_caz_special:
 
 
 DELETE:
+    # Citim descriptorul
+    pushl $descriptor         
+    pushl $Input               
+    call scanf                 
+    addl $8, %esp              
 
+    movl $0, lineIndex              
+
+delete_loop_linii:
+	movl lineIndex, %ecx
+	cmp %ecx, lines
+	je delete_OverwriteLoop
+
+	movl $0, columnIndex
+	delete_loop_coloane:
+		movl columnIndex, %ecx
+		cmp %ecx, columns
+		je delete_loop_linii_next
+		
+		movl lineIndex, %eax
+		mull columns
+		addl columnIndex, %eax	
+		movl (%edi, %eax, 4), %ebx              # elem curent in matrice
+		
+        # verif daca e egal cu descriptorul
+        cmp descriptor, %ebx
+        jne delete_Copy
+
+        # daca e egal
+        movl $0, matrix_w(,%eax,4)
+        jmp delete_loop_coloane_next
+
+        delete_Copy:
+            movl %ebx, matrix_w(,%eax,4)
+
+    delete_loop_coloane_next:
+		addl $1, columnIndex
+		jmp delete_loop_coloane
+	
+delete_loop_linii_next:
+	addl $1, lineIndex
+	jmp delete_loop_linii
+
+delete_OverwriteLoop:
+    
+    movl $0, columnIndex
+    movl $0, lineIndex
+    
+    overwrite_loop_linii:
+	movl lineIndex, %ecx
+	cmp %ecx, lines
+	je AFISARE
+
+	movl $0, columnIndex
+	overwrite_loop_coloane:
+		movl columnIndex, %ecx
+		cmp %ecx, columns
+		je overwrite_loop_linii_next
+		
+		movl lineIndex, %eax
+		mull columns
+		addl columnIndex, %eax	
+		movl matrix_w(, %eax, 4), %ebx              # elem curent matrice aux
+		
+        # incarcam matrix{} = matrix_w{} si matrix_w[i][j] = 0
+        movl %ebx , (%edi, %eax, 4)
+        movl $0, matrix_w(, %eax, 4)
+
+    overwrite_loop_coloane_next:
+		addl $1, columnIndex
+		jmp overwrite_loop_coloane
+	
+overwrite_delete_loop_linii_next:
+	addl $1, lineIndex
+	jmp overwrite_loop_linii
 
 
 
 DEFRAGMENTATION:
+
+
+
+
+
+AFISARE:

@@ -252,7 +252,7 @@ get_caz_special:
 
 DELETE:
 
-# Citim descriptorul
+    # Citim descriptorul
     pushl $descriptor         
     pushl $Input               
     call scanf                 
@@ -362,6 +362,10 @@ afisare_nextloop:
 
 afisare_end:
     jmp loopPrincipalNext                         # Întoarcem la funcția apelantă
+
+
+
+
 
 
 DEFRAGMENTATION:
