@@ -72,7 +72,7 @@ ADD:
     call scanf
     addl $8, %esp 
 
-    movl nrFis, %ecx  # Counter loop exterior
+    movl nrFis, %ecx                # Counter loop fisiere
 
     movl $0, lineIndex
     movl $0, columnIndex
@@ -109,103 +109,41 @@ add_loop_fisiere:
     cmp $0, %edx     
     je dim_ok        
     incl %eax        
+    
     dim_ok:
-        movl %eax, dimensiune
+    movl %eax, dimensiune
 
-        # Loop interior pentru spatii libere
-        xorl %ebx, %ebx  # %ebx = d 
+    movl $0, lineIndex
+    movl $0, columnIndex
+    
+    # Loop linii
     add_loop_linii:
         movl lineIndex, %ecx
         cmp %ecx, lines
         je add_loop_linii_done
 
-        movl $0, ctSLibere
-        # incepe loop ul de coloane
-        movl $0, columnIndex
-    
-        add_loop_coloane:
-            movl columnIndex, %ecx
-            cmpl %ecx, columns
-            je add_loop_linii_next  
 
-            # calc elem curent matrice
-            movl lineIndex, %eax
-            mull columns
-            addl columnIndex, %eax
-            
-            movl (%edi, %eax, 4), %edx         # %edx = matrix[k][d]
 
-            # If v[k][d] == 0
-            cmpl $0, %edx
-            jne add_resetare_spatii
-            
-            # Increment free space counter
-            incl ctSLibere
-            movl ctSLibere, %eax
-            cmpl dimensiune, %eax
-            jne add_loop_coloane_next  # Not enough space yet
 
-            # Suficient spatiu
-            movl %ecx, idFinal
-            subl dimensiune, %ecx
-            incl %ecx
-            movl %ecx, idInceput
-
-            # Afisare 
-            pushl idFinal
-            pushl lineIndex
-            pushl idInceput
-            pushl lineIndex
-            pushl descriptor
-            pushl $Output
-            call printf
-            addl $24, %esp  
-
-            pushl $0
-            call fflush
-            addl $4, %esp
-
-            # Actualizare array
-            movl idInceput, %eax
-        add_update_loop:
-            movl descriptor, %ebx
-            movl %ebx, (%edi,%eax,4)
-            incl %eax
-            cmpl idFinal, %eax
-            jle add_update_loop
-
-            jmp add_loop_fisiere_next
-
-        add_resetare_spatii:
-            movl $0, ctSLibere
-
-        add_loop_coloane_next:
-            addl $1, columnIndex
-		    jmp add_loop_coloane
 
     add_loop_linii_next:
         addl $1, lineIndex
         jmp add_loop_linii
 
+
     add_loop_linii_done:
         movl ctSLibere, %eax
-        cmp %eax, dimensiune
-        je add_loop_fisiere_next
+        je add_loop_fisiere_next            # verificam daca ctSLibere != dimeensiune
 
-        add_no_space:
-            # Cazul (0,0)
-            pushl $0
-            pushl $0
-            pushl $0
-            pushl $0
-            pushl descriptor
-            pushl $Output
-            call printf
-            addl $24, %esp  
-
-            pushl $0
-            call fflush
-            addl $4, %esp
+        # daca e diferit afisam cazul 00
+        pushl $0
+        pushl $0
+        pushl $0
+        pushl $0
+        pushl descriptor
+        pushl $Output
+        call printf
+        addl $24, %esp  
 
 add_loop_fisiere_next:
     popl %ecx
