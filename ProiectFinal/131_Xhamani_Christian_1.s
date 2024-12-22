@@ -1,6 +1,6 @@
 .data
-	matrix: .space 4194304
-    matrix_w: .space 4194304
+	matrix: .space 4202500
+    matrix_w: .space 4202500
 
     lineIndex: .space 4
     columnIndex: .space 4
@@ -407,7 +407,7 @@ AFISARE:
 	movl $0, descriptor         
     movl $0, idInceput          
     movl $0, idFinal            
-	movl $0, idInceput
+
 
     movl $0, lineIndex
 afisare_loop_linii:
@@ -415,11 +415,15 @@ afisare_loop_linii:
 	cmp %ecx, lines
 	je afisare_end
 
+	movl $0, descriptor         
+    movl $0, idInceput          
+    movl $0, idFinal 
+
 	movl $0, columnIndex
 	afisare_loop_coloane:
 		movl columnIndex, %ecx
 		cmp %ecx, columns
-		je afisare_loop_linii_next
+		jl afisare_loop_linii_next
 		
 		movl lineIndex, %eax
 		mull columns
@@ -430,7 +434,7 @@ afisare_loop_linii:
         cmp %edx, descriptor
         je afisare_descriptor0          # Dacă descriptor == 0, verif matrix[i][j] 
 
-        # Daca descriptor != 0
+        # matrix[i][j] != descriptor
         cmp %ebx, descriptor
         jne afisare_printare_intervale
         
