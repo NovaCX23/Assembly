@@ -103,7 +103,9 @@ void DEFRAG():
 
 void afisare():
 {
-    int i = 0, j = 0, lines = 8, columns = 8;
+    int lines = 8, columns = 8;
+    
+    int i = 0, j = 0;
     for(i = 0; i <= lines; i++)
     {
         for(j = 0; j <= columns; j++)

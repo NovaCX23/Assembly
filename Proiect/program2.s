@@ -402,3 +402,77 @@ DEFRAGMENTATION:
 
 
 AFISARE:
+
+	movl $0, descriptor         # descriptor = 0
+    movl $0, idInceput          # idInceput = 0
+    movl $0, idFinal            # idFinal = 0
+	
+    movl $0, lineIndex
+afisare_loop_linii:
+	movl lineIndex, %ecx
+	cmp %ecx, lines
+	je afisare_end
+
+	movl $0, columnIndex
+	afisare_loop_coloane:
+		movl columnIndex, %ecx
+		cmp %ecx, columns
+		je afisare_loop_linii_next
+		
+		movl lineIndex, %eax
+		mull columns
+		addl columnIndex, %eax	
+		movl (%edi, %eax, 4), %ebx      # elem curent matrix
+		
+        cmp $0, descriptor
+        je afisare_descriptor0          # Dacă descriptor = 0, verif matrix[i][j] 
+
+        # Daca descriptor != 0
+        cmp %ebx, descriptor
+        jne afisare_printare_intervale
+        
+        # matrix[i][j] == descriptor
+        idFinal = %ecx                  # idFinal = j
+        jmp afisare_loop_coloane_next
+
+
+        afisare_printare_intervale:
+            pushl %ebx
+            
+            pushl idFinal
+            pushl lineIndex
+            pushl idInceput
+            pushl lineIndex
+            pushl descriptor
+            pushl $Output           
+            call printf
+            addl $24, %esp
+            
+            popl %ebx
+
+            movl %ebx, descriptor
+            movl %ecx, idInceput
+            jmp afisare_loop_coloane_next
+
+        afisare_descriptor0:
+            # Verificăm dacă v[i] != 0
+            movl %ebx, %edx      # %edx = matrix[i][j] (%ebx)
+            cmpl $0, %edx
+            je afisare_loop_coloane_next    # Dacă matrix[i][j] == 0, continuăm la următoarea iterație
+
+        # Dacă matrix[i][j] != 0 și descriptor == 0, setăm descriptor = matrix[i][j] și idInceput = j
+            movl %edx, descriptor       # descriptor = matrix[i][j]
+            movl %ecx, idInceput
+            jmp afisare_loop_coloane_next
+
+
+    afisare_loop_coloane_next:
+		addl $1, columnIndex
+		jmp afisare_loop_coloane
+	
+afisare_loop_linii_next:
+	addl $1, lineIndex
+	jmp afisare_loop_linii
+
+afisare_end:
+    jmp loopPrincipalNext
