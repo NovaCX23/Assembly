@@ -5,8 +5,8 @@
     lineIndex: .space 4
     columnIndex: .space 4
 
-    lines: .long 8
-    columns: .long 8
+    lines: .long 1024
+    columns: .long 1024
 
 	nrFis: .space 4
 	nrOp: .space 4
@@ -341,15 +341,16 @@ delete_loop_linii:
 		addl columnIndex, %eax	
 		movl (%edi, %eax, 4), %ebx              # elem curent in matrice
 		
-        # verif daca e egal cu descriptorul
+        # verif daca elem curent din matrice e egal cu descriptorul
         cmp descriptor, %ebx
         jne delete_Copy
 
-        # daca e egal
+        # daca e egal bagam 0 in matricea aux
         movl $0, matrix_w(,%eax,4)
         jmp delete_loop_coloane_next
 
         delete_Copy:
+            # daca nu e egal bagam elem curent din matrice in matricea aux
             movl %ebx, matrix_w(,%eax,4)
 
     delete_loop_coloane_next:
@@ -379,7 +380,7 @@ delete_OverwriteLoop:
 		movl lineIndex, %eax
 		mull columns
 		addl columnIndex, %eax	
-		movl matrix_w(, %eax, 4), %ebx              # elem curent matrice aux
+		movl matrix_w(, %eax, 4), %ebx              # elem curent din matricea aux
 		
         # incarcam matrix{} = matrix_w{} si matrix_w[i][j] = 0
         movl %ebx , (%edi, %eax, 4)
