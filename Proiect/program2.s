@@ -441,7 +441,8 @@ afisare_loop_linii:
 
         afisare_printare_intervale:
             pushl %ebx
-            
+            pushl %ecx
+
             pushl idFinal
             pushl lineIndex
             pushl idInceput
@@ -451,6 +452,7 @@ afisare_loop_linii:
             call printf
             addl $24, %esp
             
+            popl %ecx
             popl %ebx
 
             movl %ebx, descriptor

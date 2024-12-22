@@ -28,7 +28,6 @@ afisare_loop_linii_next:
 
 
 
-
 	# idInceput = columnIndex + 1 - dimensiune;
         movl columnIndex, %ecx
         movl %ecx, idFinal

@@ -404,10 +404,11 @@ DEFRAGMENTATION:
 
 AFISARE:
 
-	movl $0, descriptor         # descriptor = 0
-    movl $0, idInceput          # idInceput = 0
-    movl $0, idFinal            # idFinal = 0
-	
+	movl $0, descriptor         
+    movl $0, idInceput          
+    movl $0, idFinal            
+	movl $0, idInceput
+
     movl $0, lineIndex
 afisare_loop_linii:
 	movl lineIndex, %ecx
@@ -427,7 +428,7 @@ afisare_loop_linii:
 		
         movl $0, %edx
         cmp %edx, descriptor
-        je afisare_descriptor0          # Dacă descriptor = 0, verif matrix[i][j] 
+        je afisare_descriptor0          # Dacă descriptor == 0, verif matrix[i][j] 
 
         # Daca descriptor != 0
         cmp %ebx, descriptor
@@ -440,7 +441,8 @@ afisare_loop_linii:
 
         afisare_printare_intervale:
             pushl %ebx
-            
+            pushl %ecx
+
             pushl idFinal
             pushl lineIndex
             pushl idInceput
@@ -450,6 +452,7 @@ afisare_loop_linii:
             call printf
             addl $24, %esp
             
+            popl %ecx
             popl %ebx
 
             movl %ebx, descriptor
