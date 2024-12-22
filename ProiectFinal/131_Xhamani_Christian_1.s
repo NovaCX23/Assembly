@@ -456,7 +456,7 @@ afisare_loop_linii:
             popl %ebx
 
             movl %ebx, descriptor
-            movl %ecx, idInceput
+            movl %ecx, idInceput            # cred ca aici e problema
             jmp afisare_loop_coloane_next
 
         afisare_descriptor0:
