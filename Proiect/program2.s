@@ -389,7 +389,7 @@ delete_OverwriteLoop:
 		addl $1, columnIndex
 		jmp overwrite_loop_coloane
 	
-overwrite_delete_loop_linii_next:
+overwrite_loop_linii_next:
 	addl $1, lineIndex
 	jmp overwrite_loop_linii
 
@@ -424,7 +424,8 @@ afisare_loop_linii:
 		addl columnIndex, %eax	
 		movl (%edi, %eax, 4), %ebx      # elem curent matrix
 		
-        cmp $0, descriptor
+        movl $0, %edx
+        cmp %edx, descriptor
         je afisare_descriptor0          # Dacă descriptor = 0, verif matrix[i][j] 
 
         # Daca descriptor != 0
@@ -432,7 +433,7 @@ afisare_loop_linii:
         jne afisare_printare_intervale
         
         # matrix[i][j] == descriptor
-        idFinal = %ecx                  # idFinal = j
+        movl %ecx, idFinal                 # idFinal = j
         jmp afisare_loop_coloane_next
 
 
