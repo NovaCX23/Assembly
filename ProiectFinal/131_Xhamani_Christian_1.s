@@ -225,6 +225,8 @@ add_end:
 
 
 
+
+
 GET:
     movl $1025, idInceput
     movl $1025, idFinal
@@ -310,14 +312,168 @@ get_caz_special:
     call printf
     addl $20, %esp
 
+
     jmp loopPrincipalNext
 
 
-
-
 DELETE:
+    # Citim descriptorul
+    pushl $descriptor         
+    pushl $Input               
+    call scanf                 
+    addl $8, %esp              
 
+    movl $0, lineIndex              
+
+delete_loop_linii:
+	movl lineIndex, %ecx
+	cmp %ecx, lines
+	je delete_OverwriteLoop
+
+	movl $0, columnIndex
+	delete_loop_coloane:
+		movl columnIndex, %ecx
+		cmp %ecx, columns
+		je delete_loop_linii_next
+		
+		movl lineIndex, %eax
+		mull columns
+		addl columnIndex, %eax	
+		movl (%edi, %eax, 4), %ebx              # elem curent in matrice
+		
+        # verif daca e egal cu descriptorul
+        cmp descriptor, %ebx
+        jne delete_Copy
+
+        # daca e egal
+        movl $0, matrix_w(,%eax,4)
+        jmp delete_loop_coloane_next
+
+        delete_Copy:
+            movl %ebx, matrix_w(,%eax,4)
+
+    delete_loop_coloane_next:
+		addl $1, columnIndex
+		jmp delete_loop_coloane
+	
+delete_loop_linii_next:
+	addl $1, lineIndex
+	jmp delete_loop_linii
+
+delete_OverwriteLoop:
+    
+    movl $0, columnIndex
+    movl $0, lineIndex
+    
+    overwrite_loop_linii:
+	movl lineIndex, %ecx
+	cmp %ecx, lines
+	je AFISARE
+
+	movl $0, columnIndex
+	overwrite_loop_coloane:
+		movl columnIndex, %ecx
+		cmp %ecx, columns
+		je overwrite_loop_linii_next
+		
+		movl lineIndex, %eax
+		mull columns
+		addl columnIndex, %eax	
+		movl matrix_w(, %eax, 4), %ebx              # elem curent matrice aux
+		
+        # incarcam matrix{} = matrix_w{} si matrix_w[i][j] = 0
+        movl %ebx , (%edi, %eax, 4)
+        movl $0, matrix_w(, %eax, 4)
+
+    overwrite_loop_coloane_next:
+		addl $1, columnIndex
+		jmp overwrite_loop_coloane
+	
+overwrite_loop_linii_next:
+	addl $1, lineIndex
+	jmp overwrite_loop_linii
 
 
 
 DEFRAGMENTATION:
+
+
+
+
+
+AFISARE:
+
+	movl $0, descriptor         # descriptor = 0
+    movl $0, idInceput          # idInceput = 0
+    movl $0, idFinal            # idFinal = 0
+	
+    movl $0, lineIndex
+afisare_loop_linii:
+	movl lineIndex, %ecx
+	cmp %ecx, lines
+	je afisare_end
+
+	movl $0, columnIndex
+	afisare_loop_coloane:
+		movl columnIndex, %ecx
+		cmp %ecx, columns
+		je afisare_loop_linii_next
+		
+		movl lineIndex, %eax
+		mull columns
+		addl columnIndex, %eax	
+		movl (%edi, %eax, 4), %ebx      # elem curent matrix
+		
+        movl $0, %edx
+        cmp %edx, descriptor
+        je afisare_descriptor0          # Dacă descriptor = 0, verif matrix[i][j] 
+
+        # Daca descriptor != 0
+        cmp %ebx, descriptor
+        jne afisare_printare_intervale
+        
+        # matrix[i][j] == descriptor
+        movl %ecx, idFinal                 # idFinal = j
+        jmp afisare_loop_coloane_next
+
+
+        afisare_printare_intervale:
+            pushl %ebx
+            
+            pushl idFinal
+            pushl lineIndex
+            pushl idInceput
+            pushl lineIndex
+            pushl descriptor
+            pushl $Output           
+            call printf
+            addl $24, %esp
+            
+            popl %ebx
+
+            movl %ebx, descriptor
+            movl %ecx, idInceput
+            jmp afisare_loop_coloane_next
+
+        afisare_descriptor0:
+            # Verificăm dacă v[i] != 0
+            movl %ebx, %edx      # %edx = matrix[i][j] (%ebx)
+            cmpl $0, %edx
+            je afisare_loop_coloane_next    # Dacă matrix[i][j] == 0, continuăm la următoarea iterație
+
+        # Dacă matrix[i][j] != 0 și descriptor == 0, setăm descriptor = matrix[i][j] și idInceput = j
+            movl %edx, descriptor       # descriptor = matrix[i][j]
+            movl %ecx, idInceput
+            jmp afisare_loop_coloane_next
+
+
+    afisare_loop_coloane_next:
+		addl $1, columnIndex
+		jmp afisare_loop_coloane
+	
+afisare_loop_linii_next:
+	addl $1, lineIndex
+	jmp afisare_loop_linii
+
+afisare_end:
+    jmp loopPrincipalNext
