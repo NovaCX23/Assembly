@@ -24,3 +24,36 @@ afisare_loop_linii:
 afisare_loop_linii_next:
 	addl $1, lineIndex
 	jmp afisare_loop_linii
+
+
+
+
+
+	# idInceput = columnIndex + 1 - dimensiune;
+        movl columnIndex, %ecx
+        movl %ecx, idFinal
+        incl %ecx
+        subl %edx, %ecx
+        movl %ecx, idInceput
+
+        pushl %eax    # lineIndex
+        pushl %edx
+        pushl idFinal
+        pushl lineIndex
+        pushl idInceput
+        pushl lineIndex
+        pushl descriptor
+        pushl $Output
+        call printf
+        addl $24, %esp
+        popl %edx
+        popl %eax
+
+        # idInceput = (lineIndex * columns + columnIndex) + 1 - dimensiune;
+        movl %eax, idFinal
+        incl %eax
+        subl %edx, %eax
+        movl %eax, idInceput
+
+
+        movl idInceput, %eax
